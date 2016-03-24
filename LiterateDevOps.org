@@ -1,0 +1,57 @@
+* The canonical [[https://www.youtube.com/watch?v=dljNabciEGg][You Tube video]]
+#+BEGIN_QUOTE
+A literate program provides an unambiguous place to start with an
+unfamiliar code base and a direction to go.  ---Shane Celis
+#+END_QUOTE
+*** "
+* Grey-neck-beard's Emacs Intro
+*** interactive functions (interactive) 
+    function that separates functions called by other functions from those
+    that are called directly.
+    #+BEGIN_SRC emacs-lisp
+      (defun ha-insert-line-before (times)
+        "Inserts a newline(s) above the line containing the cursor.
+         From Howard Abrams' Emacs intro"
+        (interactive "p") ;"p" takes a parameter
+        (save-excursion 
+          (move-beginning-of-line 1)
+          (newline times)))
+
+      (global-set-key (kbd "C-S-o")
+                      'my/insert-line-before)
+    #+END_SRC
+*** Expand Regions C-= highlights syntactical section. Hitting it again expands it.
+    Absorbed into my .emacs
+*** TODO Snippest
+*** Use C-s to jump to a word instead of arrow keys
+*** M-N to jump to same word cursor is on
+*** TODO linum-relative mode
+*** POSTPONED Check out Prelude project. Package collections for prog. languages.
+    Too much stuff in Prelude. Probably best to start with a clean
+    .emacs and play around when I have time
+*** TODO H.A.'s demo-it project: for pair programming
+    - M-s h r   :: highlight-regexp
+    - M-s h u   :: unhighlight-regexp
+    - M-s h .   :: highlight-symbol-at-point
+    - yasnippet :: auto inserting text
+*** TODO org-bullets and org-beautify-theme
+*** Modeline: Powerline
+* New Org Mode File at beginning of each "sprint iteration"
+*** C-c C-c execute code block in org-mode file
+* Emphasize Communication
+*** expand-region
+    select section C-x n s for org-narrow-to-subtree
+*** org-mime-org-buffer-htmlize to send email
+    - You can select code and export it in a mime-alternative format
+      suitable for email
+    - located in org-plus contrib package
+*** Write in past tense
+*** Use org-mode headers and properties to keep clutter from the source code blocks
+    #+BEGIN_SRC sh  :exports code
+      sensors
+    #+END_SRC
+
+
+*** Narrow to just this section C-x n s
+*** Widen to remove any narrowing C-x n w
+

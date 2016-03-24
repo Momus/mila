@@ -1,0 +1,28 @@
+#+TITLE:  Mila.cat Configuration and Deployment
+#+AUTHOR: Dmitri Brengauz
+#+EMAIL:  dmitri@momus.net
+#+DATE:   3 March 2016
+#+TAGS:   freebsd technical
+#+DESCRIPTION: Tangle-able notes on setting up IPTables that can install a nifty script
+#+PROPERTY:    results drawer
+#+PROPERTY:    eval no-export
+#+PROPERTY:    comments org
+#+PROPERTY:    tangle /ssh:troll.howardabrams.com:bin/setup-iptables.sh
+#+PROPERTY:    dir /ssh:troll.howardabrams.com:
+* What am I doing?
+  The idea of literate programing holds obvious attractions; the idea
+  of literate DevOps even more so: in theory, an enitre site can be
+  constructed from one well written Org-mode file, and even a complete
+  testing/development environment that mirrors the site can be spun up
+  with just a few keystrokes. For me, this idea went from hopeful
+  Google term to something approaching reality when I stumbled across
+  [[http://www.howardism.org/Technical/Emacs/literate-devops.html][this blog post]].
+*** Preliminary steps:
+    1. Create project directory, create this file inside of it.
+    2. Create a Vagrantfile in this directory for dev/testing
+    3. Incorporate Vagrantfile into this document
+    4. Use steps divined for Vagrantfile to configure production
+       server on Digital Ocean
+    5. Profit!!!
+
+*** 

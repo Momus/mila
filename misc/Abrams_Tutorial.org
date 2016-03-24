@@ -1,0 +1,620 @@
+#+PROPERTY: :exports both
+
+(setq org-confirm-babel-evaluate nil)
+* Errata
+  - Too Many Parameters?
+  error:  "howard" should be in quotes.
+  #+HEADER: :dir /etc
+  #+HEADER: :var USER=howard
+  #+BEGIN_SRC sh
+    grep $USER passwd
+  #+END_SRC
+  - Language-Specific Default Values
+    error: unecessary tilde.
+    text: For Value enter: ~:dir /etc
+  - Comments 
+    clarification helpful:
+    in #+PROPERTY: comments org
+    what does the "org" do?
+  - Footnote 1
+    ".... _The_ originally saw each code block ...." ?
+  - Noweb
+    - broken link: Creates _last-col.sh_ source code that contains:
+    - executing the 'ruby -ane' block
+      1. "Code block produced no output."
+      2. no file is created in the working directory
+  - Reprocessing
+    possible non sequitur (edit orphan?):
+    "Once again, Ruby and Python being the close siblings that they are."
+  - Cleaning Results
+    not sure why the last line, ls -l is necessary.
+  - Graphviz
+    'd -> a;' should be 'c -> a;' to reproduce the graph.
+
+  
+
+
+* Basic examples in various languages.
+#+BEGIN_SRC emacs-lisp
+  (directory-files ".")
+#+END_SRC
+
+#+RESULTS:
+| . | .. | .git | Abrams_Tutorial.org | LiterateDevOps.org | Mila.org |
+
+#+BEGIN_SRC ruby
+  Dir.entries('.')
+#+END_SRC
+
+#+RESULTS:
+| Abrams_Tutorial.org | Mila.org | LiterateDevOps.org | .git | . | .. |
+
+#+BEGIN_SRC python
+  from os import listdir
+  return listdir(".")
+#+END_SRC  
+
+#+RESULTS:
+| Abrams_Tutorial.org | Mila.org | LiterateDevOps.org | .git |
+
+* Block Settings
+  Code blocks can have zero or more parameters.
+*** Dir
+    sets directory where block executes.
+    #+BEGIN_SRC sh :dir /etc
+    grep kwaku passwd
+    #+END_SRC
+
+    #+RESULTS:
+    : kwaku:x:1000:1000:Dmitri G. Brengauz:/home/kwaku:/bin/bash
+
+*** use Tramp refeernces to have block remotely executed:
+    #+BEGIN_SRC sh
+    hostname -f
+    #+END_SRC
+
+    #+RESULTS:
+    : Eos.momus.org
+
+    #+BEGIN_SRC sh :dir /apache@mila.cat:
+    hostname -f
+    #+END_SRC
+* Setting parameter locations
+  From _most_specific_ to _most general_:
+  - Inline with Header Block or above.
+  - Defaults for blocks in a section
+  - Defaults for blocks in entire document
+  - Defaults for every document.
+    Set one of these list variables
+    - org-babel-default-header-args
+    - org-babel-default-header-args:<lang>
+* Too many parameters?
+  #+HEADER: :dir /etc 
+  #+HEADER: :var USER="kwaku" 
+  #+BEGIN_SRC sh 
+    grep $USER passwd
+  #+END_SRC
+
+  #+RESULTS:
+  : kwaku:x:1000:1000:Dmitri G. Brengauz:/home/kwaku:/bin/bash
+
+* Section Default Parameters
+  Parameters that are same for _all source blocks_ should be placed in a property drawer.
+
+*** Header Section for Property Drawer experimentaion
+    :PROPERTIES:
+    :dir:      /etc
+    :END:
+    Type C-c C-x p to create drawer.
+    #+BEGIN_SRC ruby
+      File.absolute_path(".")
+    #+END_SRC
+
+    #+RESULTS:
+    : /etc
+
+* Language-Specific Default Values
+  :PROPERTIES:
+  :header-args:sh: :dir /etc
+  :header-args:ruby: :dir /
+  :END:
+
+  #+BEGIN_SRC sh
+  ls -d $(pwd)
+  #+END_SRC
+
+  #+RESULTS:
+  : /etc
+
+  #+BEGIN_SRC ruby
+  File.absolute_path('.')
+  #+END_SRC
+
+  #+RESULTS:
+  : /
+
+  
+* Default Parameters for Document
+  To set param for all blocks, use #+PROPERTY: setting placed
+  somewhere in your document.  \#+PROPERTY: dir ~/repos These
+  parameters do not have an initial colon, unless they are language
+  specific: \#+PROPERTY: header-args:sh :tangle no
+* Header Parameter Types
+*** Evaluation Parameters
+    e.g., `dir`, affects how block is executed.
+***** Results
+******* Results of an expression
+        #+BEGIN_SRC ruby
+          puts 'Hello World'
+          5 * 6                  
+        #+END_SRC
+
+        #+RESULTS:
+        : 30
+        #+BEGIN_SRC ruby :results output
+          puts 'Hello World'
+          5 * 6                  
+        #+END_SRC
+
+        #+RESULTS:
+        : Hello World
+        NB: for sh, default is output
+******* Output formatting
+********* table
+          Row for single array, full table for array of arrays
+********* list
+          Regular org-mode list exported as un-ordered list
+          #+BEGIN_SRC ruby :results list
+            Dir.entries('.').sort.select do |file|
+              file[0] != "."
+            end
+          #+END_SRC
+
+          #+RESULTS:
+          - Abrams_Tutorial.org
+          - LiterateDevOps.org
+          - Mila.org
+
+********* verbatim
+          Raw output
+          #+BEGIN_SRC sh :results verbatim :exports both
+          ssh -v localhost ls repos/Mila.cat
+          #+END_SRC
+
+          #+RESULTS:
+          : Abrams_Tutorial.org
+          : LiterateDevOps.org
+          : Mila.org
+
+********* File
+          Write results to a file
+********* html
+          assumes output is HTML markup, export that.
+********* code
+          assume output is source in the same language
+********* silent
+          only shown in mini buffer.
+
+*** Export Parameters
+    Affect how a block or execution results are exported to
+    HTML/LaTeX, ET c.
+*** Variable Parameters
+    variables passed to source block for execution.
+*** Miscellaneous I/O Parameters
+    the motley crew.
+*** 
+* Sessions
+  Each block runs own interpreter session every time it is
+  evaluated. Use session: header parameter to run all blocks in the
+  same interpreter session
+  #+BEGIN_SRC python
+    avar = 42
+    return avar
+  #+END_SRC
+
+  #+RESULTS:
+  : 42
+
+  #+BEGIN_SRC python
+  return avar / 2
+  #+END_SRC
+
+  #RESULTS:
+  Traceback (most recent call last):
+  File "<stdin>", line 5, in <module>
+  File "<stdin>", line 3, in main
+  NameError: global name 'avar' is not defined
+  #END_RESULTS
+
+  #+BEGIN_SRC ruby :session foobar
+  ave = 42
+  #+END_SRC
+
+  #+RESULTS:
+  : 42
+
+  #+BEGIN_SRC ruby :session foobar
+  ave / 2
+  #+END_SRC
+
+  #+RESULTS:
+  : 21
+
+  You can also switch to the *foobar* buffer to interact with
+  interpreter, et c.
+
+  *Warning*: A :session setting for a section is shared for each block…
+  regardless of language! Probably not what you want.
+
+
+* Writing results to a File
+
+  #+BEGIN_SRC ruby :results output :file primes.txt :exports both
+    require 'prime'
+    Prime.each(5000) do |prime|
+      p prime
+    end
+  #+END_SRC
+
+  #+RESULTS:
+  [[file:primes.txt]]
+
+* Exporting
+
+*** C-c C-e h o
+    display your file in a browser
+
+*** :exports header argument
+     - `code` :: just the block
+     - `results :: just results of block's evaluation
+     - `both` :: code and results
+     - `none` :: ignore the block when exporting
+     - *Note!* :: The `:exports` is good to set as document property
+     - syntax highlight :: for HTML exports:
+       (require 'htmlize) install from ELPA if needed.
+
+* Literate Programming
+
+*** Tangling
+    - :tangle parameter takes specified blocks & puts them in a source file
+       #+BEGIN_SRC ruby :tangle double-space.rb
+         while s = gets
+           print s ; puts
+         end
+       #+END_SRC
+    - C-c C-v t renders file
+    - Blocks are included in file _in order_.
+    - *:tangle yes* writes blocks to file with same name as org file
+    - For entire file: #+PROPERTY: tangle ./bling-mode.el
+
+*** Comments
+    - Have prose turned into [[http://orgmode.org/org.html#comments][comments]]: Prose above a block is rendered
+      as comments in the tangled source file.
+    - done by setting the #+PROPERTY: comments org
+
+
+*** Shebang
+    The [[http://orgmode.org/org.html#shebang][:shebang]] parameter specifies interpreter to use.
+
+     #+BEGIN_SRC ruby :shebang "#! ~/.rvm/rubies/ruby-2.2.1/bin/ruby"
+       while s = gets
+         puts "#{$<.file.lineno}: #{s}"
+       end
+     #+END_SRC
+
+*** Noweb
+
+    #+NAME: the-script
+#+BEGIN_SRC ruby
+  puts $F.last
+#+END_SRC
+
+#+RESULTS: the-script
+
+#+BEGIN_SRC sh :noweb yes :tangle last-col.sh
+  ruby -ane '<<the-script>>'
+#+END_SRC
+
+#+RESULTS:
+
+*** Variables
+    Pass values _into source block_!
+    #+BEGIN_SRC python :var interest=12
+      return 314 * (interest / 100.0)
+    #+END_SRC
+
+    #+RESULTS:
+    : 37.68
+
+    Specify multiple variables:
+    #+HEADER: :var a=42 d=56 :var f=23
+    #+HEADER: :var b=79 e=79
+    #+BEGIN_SRC ruby :var c=3 g=2
+    [a, b, c, d, e, f, g ]
+    #+END_SRC
+
+    #+RESULTS:
+    | 42 | 79 | 3 | 56 | 79 | 23 | 2 |
+
+*** Block-to-Block Value Passing
+
+    #+NAME: twelve-primes
+    #+BEGIN_SRC ruby
+      require 'prime'
+      Prime.first 12
+    #+END_SRC
+
+    #+RESULTS: twelve-primes
+    | 2 | 3 | 5 | 7 | 11 | 13 | 17 | 19 | 23 | 29 | 31 | 37 |
+
+    RESULTS has same name as the block. Pass this result into another
+    code block as an array:
+
+    #+BEGIN_SRC python :var primes=twelve-primes
+    return primes[-1]
+    #+END_SRC
+
+    #+RESULTS:
+    : 37
+
+    
+*** Tabular Variable Data.
+    E.g., a table of interesting numbers.
+
+    #+NAME: cool-numbers
+    #+BEGIN_SRC emacs-lisp :exports both
+      (mapcar (lambda (i)
+                (list i    (random 10)
+                      (expt i 2) (random 100)
+                      (expt i 3) (random 1000)))
+              (number-sequence 1 10))
+    #+END_SRC
+
+    #+RESULTS: cool-numbers
+    |  1 | 8 |   1 | 56 |    1 | 406 |
+    |  2 | 1 |   4 | 20 |    8 | 239 |
+    |  3 | 8 |   9 | 15 |   27 | 173 |
+    |  4 | 9 |  16 | 38 |   64 | 957 |
+    |  5 | 7 |  25 | 24 |  125 | 269 |
+    |  6 | 3 |  36 | 75 |  216 | 345 |
+    |  7 | 1 |  49 | 31 |  343 | 871 |
+    |  8 | 4 |  64 |  1 |  512 | 529 |
+    |  9 | 5 |  81 | 72 |  729 | 302 |
+    | 10 | 2 | 100 | 21 | 1000 | 884 |
+
+
+    use python to generate a list from the array, recriminating each number:
+    
+    #+BEGIN_SRC python :var nums=cool-numbers :results list
+      return [ cell + 1 for row in nums for cell in row ]
+    #+END_SRC
+
+    #+RESULTS:
+    - 2
+    - 8
+    - 2
+    - 2
+    - 2
+    - 746
+    - 3
+    - 9
+    - 5
+    - 41
+    - 9
+    - 328
+    - 4
+    - 10
+    - 10
+    - 56
+    - 28
+    - 25
+    - 5
+    - 8
+    - 17
+    - 78
+    - 65
+    - 436
+    - 6
+    - 6
+    - 26
+    - 18
+    - 126
+    - 732
+    - 7
+    - 6
+    - 37
+    - 32
+    - 217
+    - 11
+    - 8
+    - 7
+    - 50
+    - 12
+    - 344
+    - 861
+    - 9
+    - 8
+    - 65
+    - 65
+    - 513
+    - 862
+    - 10
+    - 7
+    - 82
+    - 49
+    - 730
+    - 201
+    - 11
+    - 6
+    - 101
+    - 41
+    - 1001
+    - 79
+
+
+***** Slicing and Dicing Tables
+
+      Get a single row from a table:
+      #+BEGIN_SRC ruby :var fifth=cool-numbers[4]
+        fifth
+      #+END_SRC
+
+      #+RESULTS:
+      | 5 | 7 | 25 | 93 | 125 | 258 |
+
+      get fifth column of every row
+      #+NAME: cubes
+      #+BEGIN_SRC elisp :var cubes=cool-numbers[,4]
+        cubes
+      #+END_SRC
+
+      #+RESULTS: cubes
+      | 1 | 8 | 27 | 64 | 125 | 216 | 343 | 512 | 729 | 1000 |
+
+***** Reprocessing
+      use the results of one block in another:
+      #+NAME: roots_of_list
+      #+BEGIN_SRC python :var lst=cubes :results list
+        import math
+        return [math.sqrt(n) for n in lst]
+      #+END_SRC
+
+      #+RESULTS: roots_of_list
+      - 1.0
+      - 2.8284271247461903
+      - 5.196152422706632
+      - 8.0
+      - 11.180339887498949
+      - 14.696938456699069
+      - 18.520259177452136
+      - 22.627416997969522
+      - 27.0
+      - 31.622776601683793
+
+* Keeping your Blocks Clean
+
+*** Cleaning Results
+    [[http://orgmode.org/org.html#post][:post]] parameter binds reults of codeblock to temp \*this* variable.
+    
+    Here the results of `ls -l` are passed through the skip_first code
+    block to remove the first line of output of the ls command.
+
+    #+NAME: skip_first
+    #+BEGIN_SRC elisp :var data="" 
+    (cdr data)
+    #+END_SRC
+
+    #+BEGIN_SRC sh :post skip_first(data=*this*)
+    ls -l
+    #+END_SRC
+
+    #+RESULTS:
+    | -rw-rw-r--. | 1 | kwaku | kwaku | 28517 | Mar | 22 | 15:33 | Abrams_Tutorial.html  |
+    | -rw-rw-r--. | 1 | kwaku | kwaku | 10965 | Mar | 22 | 15:36 | #Abrams_Tutorial.org# |
+    | -rw-rw-r--. | 1 | kwaku | kwaku | 10934 | Mar | 22 | 15:32 | Abrams_Tutorial.org   |
+    | -rw-rw-r--. | 1 | kwaku | kwaku |    37 | Mar | 21 | 22:23 | double-space.rb       |
+    | -rw-rw-r--. | 1 | kwaku | kwaku |  2200 | Mar | 20 | 20:22 | LiterateDevOps.org    |
+    | -rw-rw-r--. | 1 | kwaku | kwaku |  1286 | Mar |  4 | 21:24 | Mila.org              |
+    | -rw-rw-r--. | 1 | kwaku | kwaku |  3148 | Mar | 22 | 15:33 | primes.txt            |
+
+*** Environment Setup
+    [[http://orgmode.org/org.html#prologue][:prologue]] prepends string to code block body before execution.
+
+    #+BEGIN_SRC sh :prologue "time \\"
+      ls
+      pwd
+    #+END_SRC
+
+    #+RESULTS:
+    | Abrams_Tutorial.html       |
+    | Abrams_Tutorial.org        |
+    | double-space.rb            |
+    | LiterateDevOps.org         |
+    | Mila.org                   |
+    | primes.txt                 |
+    | /home/kwaku/repos/Mila.cat |
+
+    
+*** Using RVM
+    use  :prologue with two backslashes:
+    #+BEGIN_SRC sh :prologue "~/.rvm/bin/rvm 2.2.1 exec \\"
+      gem list
+    #+END_SRC
+
+    #+RESULTS:
+    | actionmailer               | (4.2.4,      |      4.2.3, | 4.2.2,      | 4.2.1,                |       4.1.4) |         |         |         |
+    | actionpack                 | (4.2.4,      |      4.2.3, | 4.2.2,      | 4.2.1,                |       4.1.4) |         |         |         |
+    | padrino-gen                | (0.13.0,     |     0.12.5) |             |                       |              |         |         |         |
+    | padrino-helpers            | (0.13.0,     |     0.12.5) |             |                       |              |         |         |         |
+
+* Miscellaneus Features
+
+*** Calling Blocks
+
+    #+CALL: roots_of_list( lst='(16 144 81 61) )
+
+    #+RESULTS:
+    | 4.0 | 12.0 | 9.0 | 7.810249675906654 |
+
+
+    call with values from output of another code block
+
+    #+CALL: roots_of_list(lst=cool-numbers[,2] )
+
+    #+RESULTS:
+    | 1.0 | 2.0 | 3.0 | 4.0 | 5.0 | 6.0 | 7.0 | 8.0 | 9.0 | 10.0 |
+
+*** Embedded Results
+    - src_ruby{4 + 3} =7=
+      when exported, only _results are shown (not the source!)
+
+    - Why do I have src_sh{ls /tmp | wc -l } =8= files?
+
+    - Agenda: src_elisp{ org-agenda-files }
+| ~/organizer.org | /home/kwaku/repos/projects/org/macucaopp.org | 
+
+    - You can also _call_ blocks:
+      call_roots_of_list( lst=cool-numbers[,2] )
+| 1.0 | 2.0 | 3.0 | 4.0 | 5.0 | 6.0 | 7.0 | 8.0 | 9.0 | 10.0 |
+
+
+*** Library of Babel
+    - Collection of org blocks accessible to _any_ org-mode file.
+      1. Create a new org-mode file with at least one named block
+      2. *C-c C-v i* in your Emacs session
+      3. Select file to specify this should be added to _babel_ collection.
+
+* Specialized Languages
+
+*** SQL
+    - M-x load-library ob-sqlite
+      #+BEGIN_SRC sqlite :db dolphins.db
+        SELECT gender   ,COUNT(gender) FROM oasis GROUP BY gender;
+      #+END_SRC
+    - Read the [[http://www.howardism.org/Technical/Emacs/literate-database.html][Literate Databases]] essay
+*** Graphviz
+    #+BEGIN_SRC dot :file some-illustration.png
+    digraph {
+      a -> b;
+      b -> c;
+      c -> a;
+      }    
+    #+END_SRC
+
+    #+RESULTS:
+    [[file:some-illustration.png]]
+
+*** PlantUML
+    Great diagrams: install it, play around with it!
+
+*** Calc Emacs Calculator!
+    #+BEGIN_SRC calc :var a=2 b=9 c=64 c=5
+    ((a+b)^2 + sqrt(c)) / (2x + 1)
+    #+END_SRC
+
+    #+RESULTS:
+    : 123.236067978 / (2 x + 1)
+
+    each line of each calc block is placed on the stack in the Calc
+    mode buffer (see it with C-x * *).
+

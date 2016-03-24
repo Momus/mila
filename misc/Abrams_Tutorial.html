@@ -1,0 +1,996 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<title>Abrams_Tutorial</title>
+<!-- 2016-03-22 Tue 15:46 -->
+<meta  http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta  name="generator" content="Org-mode" />
+<meta  name="author" content="Dmitri G. Brengauz" />
+<style type="text/css">
+ <!--/*--><![CDATA[/*><!--*/
+  .title  { text-align: center; }
+  .todo   { font-family: monospace; color: red; }
+  .done   { color: green; }
+  .tag    { background-color: #eee; font-family: monospace;
+            padding: 2px; font-size: 80%; font-weight: normal; }
+  .timestamp { color: #bebebe; }
+  .timestamp-kwd { color: #5f9ea0; }
+  .right  { margin-left: auto; margin-right: 0px;  text-align: right; }
+  .left   { margin-left: 0px;  margin-right: auto; text-align: left; }
+  .center { margin-left: auto; margin-right: auto; text-align: center; }
+  .underline { text-decoration: underline; }
+  #postamble p, #preamble p { font-size: 90%; margin: .2em; }
+  p.verse { margin-left: 3%; }
+  pre {
+    border: 1px solid #ccc;
+    box-shadow: 3px 3px 3px #eee;
+    padding: 8pt;
+    font-family: monospace;
+    overflow: auto;
+    margin: 1.2em;
+  }
+  pre.src {
+    position: relative;
+    overflow: visible;
+    padding-top: 1.2em;
+  }
+  pre.src:before {
+    display: none;
+    position: absolute;
+    background-color: white;
+    top: -10px;
+    right: 10px;
+    padding: 3px;
+    border: 1px solid black;
+  }
+  pre.src:hover:before { display: inline;}
+  pre.src-sh:before    { content: 'sh'; }
+  pre.src-bash:before  { content: 'sh'; }
+  pre.src-emacs-lisp:before { content: 'Emacs Lisp'; }
+  pre.src-R:before     { content: 'R'; }
+  pre.src-perl:before  { content: 'Perl'; }
+  pre.src-java:before  { content: 'Java'; }
+  pre.src-sql:before   { content: 'SQL'; }
+
+  table { border-collapse:collapse; }
+  caption.t-above { caption-side: top; }
+  caption.t-bottom { caption-side: bottom; }
+  td, th { vertical-align:top;  }
+  th.right  { text-align: center;  }
+  th.left   { text-align: center;   }
+  th.center { text-align: center; }
+  td.right  { text-align: right;  }
+  td.left   { text-align: left;   }
+  td.center { text-align: center; }
+  dt { font-weight: bold; }
+  .footpara:nth-child(2) { display: inline; }
+  .footpara { display: block; }
+  .footdef  { margin-bottom: 1em; }
+  .figure { padding: 1em; }
+  .figure p { text-align: center; }
+  .inlinetask {
+    padding: 10px;
+    border: 2px solid gray;
+    margin: 10px;
+    background: #ffffcc;
+  }
+  #org-div-home-and-up
+   { text-align: right; font-size: 70%; white-space: nowrap; }
+  textarea { overflow-x: auto; }
+  .linenr { font-size: smaller }
+  .code-highlighted { background-color: #ffff00; }
+  .org-info-js_info-navigation { border-style: none; }
+  #org-info-js_console-label
+    { font-size: 10px; font-weight: bold; white-space: nowrap; }
+  .org-info-js_search-highlight
+    { background-color: #ffff00; color: #000000; font-weight: bold; }
+  /*]]>*/-->
+</style>
+<script type="text/javascript">
+/*
+@licstart  The following is the entire license notice for the
+JavaScript code in this tag.
+
+Copyright (C) 2012-2013 Free Software Foundation, Inc.
+
+The JavaScript code in this tag is free software: you can
+redistribute it and/or modify it under the terms of the GNU
+General Public License (GNU GPL) as published by the Free Software
+Foundation, either version 3 of the License, or (at your option)
+any later version.  The code is distributed WITHOUT ANY WARRANTY;
+without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE.  See the GNU GPL for more details.
+
+As additional permission under GNU GPL version 3 section 7, you
+may distribute non-source (e.g., minimized or compacted) forms of
+that code without the copy of the GNU GPL normally required by
+section 4, provided you include this license notice and a URL
+through which recipients can access the Corresponding Source.
+
+
+@licend  The above is the entire license notice
+for the JavaScript code in this tag.
+*/
+<!--/*--><![CDATA[/*><!--*/
+ function CodeHighlightOn(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(null != target) {
+     elem.cacheClassElem = elem.className;
+     elem.cacheClassTarget = target.className;
+     target.className = "code-highlighted";
+     elem.className   = "code-highlighted";
+   }
+ }
+ function CodeHighlightOff(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(elem.cacheClassElem)
+     elem.className = elem.cacheClassElem;
+   if(elem.cacheClassTarget)
+     target.className = elem.cacheClassTarget;
+ }
+/*]]>*///-->
+</script>
+</head>
+<body>
+<div id="content">
+<h1 class="title">Abrams_Tutorial</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#sec-1">1. Errata</a></li>
+<li><a href="#sec-2">2. Basic examples in various languages.</a></li>
+<li><a href="#sec-3">3. Block Settings</a>
+<ul>
+<li><a href="#sec-3-1">3.1. Dir</a></li>
+<li><a href="#sec-3-2">3.2. use Tramp refeernces to have block remotely executed:</a></li>
+</ul>
+</li>
+<li><a href="#sec-4">4. Setting parameter locations</a></li>
+<li><a href="#sec-5">5. Too many parameters?</a></li>
+<li><a href="#sec-6">6. Section Default Parameters</a>
+<ul>
+<li><a href="#sec-6-1">6.1. Header Section for Property Drawer experimentaion</a></li>
+</ul>
+</li>
+<li><a href="#sec-7">7. Language-Specific Default Values</a></li>
+<li><a href="#sec-8">8. Default Parameters for Document</a></li>
+<li><a href="#sec-9">9. Header Parameter Types</a>
+<ul>
+<li><a href="#sec-9-1">9.1. Evaluation Parameters</a>
+<ul>
+<li><a href="#sec-9-1-1">9.1.1. Results</a></li>
+</ul>
+</li>
+<li><a href="#sec-9-2">9.2. Export Parameters</a></li>
+<li><a href="#sec-9-3">9.3. Variable Parameters</a></li>
+<li><a href="#sec-9-4">9.4. Miscellaneous I/O Parameters</a></li>
+<li><a href="#sec-9-5">9.5. </a></li>
+</ul>
+</li>
+<li><a href="#sec-10">10. Sessions</a></li>
+<li><a href="#sec-11">11. Writing results to a File</a></li>
+<li><a href="#sec-12">12. Exporting</a>
+<ul>
+<li><a href="#sec-12-1">12.1. C-c C-e h o</a></li>
+<li><a href="#sec-12-2">12.2. :exports header argument</a></li>
+</ul>
+</li>
+<li><a href="#sec-13">13. Literate Programming</a>
+<ul>
+<li><a href="#sec-13-1">13.1. Tangling</a></li>
+<li><a href="#sec-13-2">13.2. Comments</a></li>
+<li><a href="#sec-13-3">13.3. Shebang</a></li>
+<li><a href="#sec-13-4">13.4. Noweb</a></li>
+<li><a href="#sec-13-5">13.5. Variables</a></li>
+<li><a href="#sec-13-6">13.6. Block-to-Block Value Passing</a></li>
+<li><a href="#sec-13-7">13.7. Tabular Variable Data.</a>
+<ul>
+<li><a href="#sec-13-7-1">13.7.1. Slicing and Dicing Tables</a></li>
+<li><a href="#sec-13-7-2">13.7.2. Reprocessing</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#sec-14">14. Keeping your Blocks Clean</a>
+<ul>
+<li><a href="#sec-14-1">14.1. Cleaning Results</a></li>
+<li><a href="#sec-14-2">14.2. </a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<p>
+(setq org-confirm-babel-evaluate nil)
+</p>
+<div id="outline-container-sec-1" class="outline-2">
+<h2 id="sec-1"><span class="section-number-2">1</span> Errata</h2>
+<div class="outline-text-2" id="text-1">
+<ul class="org-ul">
+<li>Too Many Parameters?
+</li>
+</ul>
+<p>
+error:  "howard" should be in quotes.
+</p>
+<div class="org-src-container">
+
+<pre class="src src-sh">grep $<span style="color: #cae682;">USER</span> passwd
+</pre>
+</div>
+<ul class="org-ul">
+<li>Language-Specific Default Values
+error: unecessary tilde.
+text: For Value enter: ~:dir /etc
+</li>
+<li>Comments 
+clarification helpful:
+in #+PROPERTY: comments org
+what does the "org" do?
+</li>
+<li>Footnote 1
+"&#x2026;. <span class="underline">The</span> originally saw each code block &#x2026;." ?
+</li>
+<li>Noweb
+<ul class="org-ul">
+<li>broken link: Creates <span class="underline">last-col.sh</span> source code that contains:
+</li>
+<li>executing the 'ruby -ane' block
+<ol class="org-ol">
+<li>"Code block produced no output."
+</li>
+<li>no file is created in the working directory
+</li>
+</ol>
+</li>
+</ul>
+</li>
+<li>Reprocessing
+possible non sequitur (edit orphan?):
+"Once again, Ruby and Python being the close siblings that they are."
+</li>
+<li></li>
+</ul>
+</div>
+</div>
+
+
+
+
+<div id="outline-container-sec-2" class="outline-2">
+<h2 id="sec-2"><span class="section-number-2">2</span> Basic examples in various languages.</h2>
+<div class="outline-text-2" id="text-2">
+<div class="org-src-container">
+
+<pre class="src src-emacs-lisp">(directory-files <span style="color: #95e454;">"."</span>)
+</pre>
+</div>
+
+<div class="org-src-container">
+
+<pre class="src src-ruby"><span style="color: #92a65e; font-weight: bold;">Dir</span>.entries(<span style="color: #95e454;">'.'</span>)
+</pre>
+</div>
+
+<div class="org-src-container">
+
+<pre class="src src-python"><span style="color: #8ac6f2; font-weight: bold;">from</span> os <span style="color: #8ac6f2; font-weight: bold;">import</span> listdir
+<span style="color: #8ac6f2; font-weight: bold;">return</span> listdir(<span style="color: #95e454;">"."</span>)
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-3" class="outline-2">
+<h2 id="sec-3"><span class="section-number-2">3</span> Block Settings</h2>
+<div class="outline-text-2" id="text-3">
+<p>
+Code blocks can have zero or more parameters.
+</p>
+</div>
+<div id="outline-container-sec-3-1" class="outline-3">
+<h3 id="sec-3-1"><span class="section-number-3">3.1</span> Dir</h3>
+<div class="outline-text-3" id="text-3-1">
+<p>
+sets directory where block executes.
+</p>
+<div class="org-src-container">
+
+<pre class="src src-sh">grep kwaku passwd
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-3-2" class="outline-3">
+<h3 id="sec-3-2"><span class="section-number-3">3.2</span> use Tramp refeernces to have block remotely executed:</h3>
+<div class="outline-text-3" id="text-3-2">
+<div class="org-src-container">
+
+<pre class="src src-sh">hostname -f
+</pre>
+</div>
+
+<div class="org-src-container">
+
+<pre class="src src-sh">hostname -f
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-sec-4" class="outline-2">
+<h2 id="sec-4"><span class="section-number-2">4</span> Setting parameter locations</h2>
+<div class="outline-text-2" id="text-4">
+<p>
+From <span class="underline">most<sub>specific</sub></span> to <span class="underline">most general</span>:
+</p>
+<ul class="org-ul">
+<li>Inline with Header Block or above.
+</li>
+<li>Defaults for blocks in a section
+</li>
+<li>Defaults for blocks in entire document
+</li>
+<li>Defaults for every document.
+Set one of these list variables
+<ul class="org-ul">
+<li>org-babel-default-header-args
+</li>
+<li>org-babel-default-header-args:&lt;lang&gt;
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-sec-5" class="outline-2">
+<h2 id="sec-5"><span class="section-number-2">5</span> Too many parameters?</h2>
+<div class="outline-text-2" id="text-5">
+<div class="org-src-container">
+
+<pre class="src src-sh">grep $<span style="color: #cae682;">USER</span> passwd
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-6" class="outline-2">
+<h2 id="sec-6"><span class="section-number-2">6</span> Section Default Parameters</h2>
+<div class="outline-text-2" id="text-6">
+<p>
+Parameters that are same for <span class="underline">all source blocks</span> should be placed in a property drawer.
+</p>
+</div>
+
+<div id="outline-container-sec-6-1" class="outline-3">
+<h3 id="sec-6-1"><span class="section-number-3">6.1</span> Header Section for Property Drawer experimentaion</h3>
+<div class="outline-text-3" id="text-6-1">
+<p>
+Type C-c C-x p to create drawer.
+</p>
+<div class="org-src-container">
+
+<pre class="src src-ruby"><span style="color: #92a65e; font-weight: bold;">File</span>.absolute_path(<span style="color: #95e454;">"."</span>)
+</pre>
+</div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-7" class="outline-2">
+<h2 id="sec-7"><span class="section-number-2">7</span> Language-Specific Default Values</h2>
+<div class="outline-text-2" id="text-7">
+
+<div class="org-src-container">
+
+<pre class="src src-sh">ls -d $(<span style="color: #fa8072;">pwd</span>)
+</pre>
+</div>
+
+<div class="org-src-container">
+
+<pre class="src src-ruby"><span style="color: #92a65e; font-weight: bold;">File</span>.absolute_path(<span style="color: #95e454;">'.'</span>)
+</pre>
+</div>
+</div>
+</div>
+
+
+<div id="outline-container-sec-8" class="outline-2">
+<h2 id="sec-8"><span class="section-number-2">8</span> Default Parameters for Document</h2>
+<div class="outline-text-2" id="text-8">
+<p>
+To set param for all blocks, use #+PROPERTY: setting placed
+somewhere in your document.  \#+PROPERTY: dir ~/repos These
+parameters do not have an initial colon, unless they are language
+specific: \#+PROPERTY: header-args:sh :tangle no
+</p>
+</div>
+</div>
+<div id="outline-container-sec-9" class="outline-2">
+<h2 id="sec-9"><span class="section-number-2">9</span> Header Parameter Types</h2>
+<div class="outline-text-2" id="text-9">
+</div><div id="outline-container-sec-9-1" class="outline-3">
+<h3 id="sec-9-1"><span class="section-number-3">9.1</span> Evaluation Parameters</h3>
+<div class="outline-text-3" id="text-9-1">
+<p>
+e.g., `dir`, affects how block is executed.
+</p>
+</div>
+<div id="outline-container-sec-9-1-1" class="outline-4">
+<h4 id="sec-9-1-1"><span class="section-number-4">9.1.1</span> Results</h4>
+<div class="outline-text-4" id="text-9-1-1">
+</div><ol class="org-ol"><li><a id="sec-9-1-1-1" name="sec-9-1-1-1"></a>Results of an expression<br  /><div class="outline-text-5" id="text-9-1-1-1">
+<div class="org-src-container">
+
+<pre class="src src-ruby"><span style="color: #e5786d;">puts</span> <span style="color: #95e454;">'Hello World'</span>
+5 * 6
+</pre>
+</div>
+<div class="org-src-container">
+
+<pre class="src src-ruby"><span style="color: #e5786d;">puts</span> <span style="color: #95e454;">'Hello World'</span>
+5 * 6
+</pre>
+</div>
+<p>
+NB: for sh, default is output
+</p>
+</div>
+</li>
+<li><a id="sec-9-1-1-2" name="sec-9-1-1-2"></a>Output formatting<br  /><ol class="org-ol"><li><a id="sec-9-1-1-2-1" name="sec-9-1-1-2-1"></a>table<br  /><div class="outline-text-6" id="text-9-1-1-2-1">
+<p>
+Row for single array, full table for array of arrays
+</p>
+</div>
+</li>
+<li><a id="sec-9-1-1-2-2" name="sec-9-1-1-2-2"></a>list<br  /><div class="outline-text-6" id="text-9-1-1-2-2">
+<p>
+Regular org-mode list exported as un-ordered list
+</p>
+<div class="org-src-container">
+
+<pre class="src src-ruby"><span style="color: #92a65e; font-weight: bold;">Dir</span>.entries(<span style="color: #95e454;">'.'</span>).sort.select <span style="color: #8ac6f2; font-weight: bold;">do</span> |file|
+  file[0] != <span style="color: #95e454;">"."</span>
+<span style="color: #8ac6f2; font-weight: bold;">end</span>
+</pre>
+</div>
+</div>
+</li>
+
+<li><a id="sec-9-1-1-2-3" name="sec-9-1-1-2-3"></a>verbatim<br  /><div class="outline-text-6" id="text-9-1-1-2-3">
+<p>
+Raw output
+</p>
+<div class="org-src-container">
+
+<pre class="src src-sh">ssh -v localhost ls repos/Mila.cat
+</pre>
+</div>
+
+<pre class="example">
+Abrams_Tutorial.html
+#Abrams_Tutorial.org#
+Abrams_Tutorial.org
+double-space.rb
+LiterateDevOps.org
+Mila.org
+primes.txt
+</pre>
+</div>
+</li>
+
+<li><a id="sec-9-1-1-2-4" name="sec-9-1-1-2-4"></a>File<br  /><div class="outline-text-6" id="text-9-1-1-2-4">
+<p>
+Write results to a file
+</p>
+</div>
+</li>
+<li><a id="sec-9-1-1-2-5" name="sec-9-1-1-2-5"></a>html<br  /><div class="outline-text-6" id="text-9-1-1-2-5">
+<p>
+assumes output is HTML markup, export that.
+</p>
+</div>
+</li>
+<li><a id="sec-9-1-1-2-6" name="sec-9-1-1-2-6"></a>code<br  /><div class="outline-text-6" id="text-9-1-1-2-6">
+<p>
+assume output is source in the same language
+</p>
+</div>
+</li>
+<li><a id="sec-9-1-1-2-7" name="sec-9-1-1-2-7"></a>silent<br  /><div class="outline-text-6" id="text-9-1-1-2-7">
+<p>
+only shown in mini buffer.
+</p>
+</div>
+</li></ol>
+</li></ol>
+</div>
+</div>
+
+<div id="outline-container-sec-9-2" class="outline-3">
+<h3 id="sec-9-2"><span class="section-number-3">9.2</span> Export Parameters</h3>
+<div class="outline-text-3" id="text-9-2">
+<p>
+Affect how a block or execution results are exported to
+HTML/LaTeX, ET c.
+</p>
+</div>
+</div>
+<div id="outline-container-sec-9-3" class="outline-3">
+<h3 id="sec-9-3"><span class="section-number-3">9.3</span> Variable Parameters</h3>
+<div class="outline-text-3" id="text-9-3">
+<p>
+variables passed to source block for execution.
+</p>
+</div>
+</div>
+<div id="outline-container-sec-9-4" class="outline-3">
+<h3 id="sec-9-4"><span class="section-number-3">9.4</span> Miscellaneous I/O Parameters</h3>
+<div class="outline-text-3" id="text-9-4">
+<p>
+the motley crew.
+</p>
+</div>
+</div>
+<div id="outline-container-sec-9-5" class="outline-3">
+<h3 id="sec-9-5"><span class="section-number-3">9.5</span> </h3>
+</div>
+</div>
+<div id="outline-container-sec-10" class="outline-2">
+<h2 id="sec-10"><span class="section-number-2">10</span> Sessions</h2>
+<div class="outline-text-2" id="text-10">
+<p>
+Each block runs own interpreter session every time it is
+evaluated. Use session: header parameter to run all blocks in the
+same interpreter session
+</p>
+<div class="org-src-container">
+
+<pre class="src src-python"><span style="color: #cae682;">avar</span> = 42
+<span style="color: #8ac6f2; font-weight: bold;">return</span> avar
+</pre>
+</div>
+
+<div class="org-src-container">
+
+<pre class="src src-python"><span style="color: #8ac6f2; font-weight: bold;">return</span> avar / 2
+</pre>
+</div>
+
+<p>
+#RESULTS:
+Traceback (most recent call last):
+File "&lt;stdin&gt;", line 5, in &lt;module&gt;
+File "&lt;stdin&gt;", line 3, in main
+NameError: global name 'avar' is not defined
+#END<sub>RESULTS</sub>
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-ruby">ave = 42
+</pre>
+</div>
+
+<div class="org-src-container">
+
+<pre class="src src-ruby">ave / 2
+</pre>
+</div>
+
+<p>
+You can also switch to the <b>foobar</b> buffer to interact with
+interpreter, et c.
+</p>
+
+<p>
+<b>Warning</b>: A :session setting for a section is shared for each block…
+regardless of language! Probably not what you want.
+</p>
+</div>
+</div>
+
+
+<div id="outline-container-sec-11" class="outline-2">
+<h2 id="sec-11"><span class="section-number-2">11</span> Writing results to a File</h2>
+<div class="outline-text-2" id="text-11">
+<div class="org-src-container">
+
+<pre class="src src-ruby"><span style="color: #e5786d;">require</span> <span style="color: #95e454;">'prime'</span>
+<span style="color: #92a65e; font-weight: bold;">Prime</span>.each(5000) <span style="color: #8ac6f2; font-weight: bold;">do</span> |prime|
+  <span style="color: #e5786d;">p</span> prime
+<span style="color: #8ac6f2; font-weight: bold;">end</span>
+</pre>
+</div>
+
+<p>
+<a href="primes.txt">primes.txt</a>
+</p>
+</div>
+</div>
+
+<div id="outline-container-sec-12" class="outline-2">
+<h2 id="sec-12"><span class="section-number-2">12</span> Exporting</h2>
+<div class="outline-text-2" id="text-12">
+</div><div id="outline-container-sec-12-1" class="outline-3">
+<h3 id="sec-12-1"><span class="section-number-3">12.1</span> C-c C-e h o</h3>
+<div class="outline-text-3" id="text-12-1">
+<p>
+display your file in a browser
+</p>
+</div>
+</div>
+
+<div id="outline-container-sec-12-2" class="outline-3">
+<h3 id="sec-12-2"><span class="section-number-3">12.2</span> :exports header argument</h3>
+<div class="outline-text-3" id="text-12-2">
+<dl class="org-dl">
+<dt> `code` </dt><dd>just the block
+</dd>
+<dt> `results </dt><dd>just results of block's evaluation
+</dd>
+<dt> `both` </dt><dd>code and results
+</dd>
+<dt> `none` </dt><dd>ignore the block when exporting
+</dd>
+<dt> <b>Note!</b> </dt><dd>The `:exports` is good to set as document property
+</dd>
+<dt> syntax highlight </dt><dd>for HTML exports:
+(require 'htmlize) install from ELPA if needed.
+</dd>
+</dl>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-13" class="outline-2">
+<h2 id="sec-13"><span class="section-number-2">13</span> Literate Programming</h2>
+<div class="outline-text-2" id="text-13">
+</div><div id="outline-container-sec-13-1" class="outline-3">
+<h3 id="sec-13-1"><span class="section-number-3">13.1</span> Tangling</h3>
+<div class="outline-text-3" id="text-13-1">
+<ul class="org-ul">
+<li>:tangle parameter takes specified blocks &amp; puts them in a source file
+<div class="org-src-container">
+
+<pre class="src src-ruby"><span style="color: #8ac6f2; font-weight: bold;">while</span> s = gets
+  <span style="color: #e5786d;">print</span> s ; puts
+<span style="color: #8ac6f2; font-weight: bold;">end</span>
+</pre>
+</div>
+</li>
+<li>C-c C-v t renders file
+</li>
+<li>Blocks are included in file <span class="underline">in order</span>.
+</li>
+<li><b>:tangle yes</b> writes blocks to file with same name as org file
+</li>
+<li>For entire file: #+PROPERTY: tangle ./bling-mode.el
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-sec-13-2" class="outline-3">
+<h3 id="sec-13-2"><span class="section-number-3">13.2</span> Comments</h3>
+<div class="outline-text-3" id="text-13-2">
+<ul class="org-ul">
+<li>Have prose turned into <a href="http://orgmode.org/org.html#comments">comments</a>: Prose above a block is rendered
+as comments in the tangled source file.
+</li>
+<li>done by setting the #+PROPERTY: comments org
+</li>
+</ul>
+</div>
+</div>
+
+
+<div id="outline-container-sec-13-3" class="outline-3">
+<h3 id="sec-13-3"><span class="section-number-3">13.3</span> Shebang</h3>
+<div class="outline-text-3" id="text-13-3">
+<p>
+The <a href="http://orgmode.org/org.html#shebang">:shebang</a> parameter specifies interpreter to use.
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-ruby"><span style="color: #8ac6f2; font-weight: bold;">while</span> s = gets
+  <span style="color: #e5786d;">puts</span> <span style="color: #95e454;">"</span><span style="color: #cae682;">#{$&lt;.file.lineno}</span><span style="color: #95e454;">: </span><span style="color: #cae682;">#{s}</span><span style="color: #95e454;">"</span>
+<span style="color: #8ac6f2; font-weight: bold;">end</span>
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-13-4" class="outline-3">
+<h3 id="sec-13-4"><span class="section-number-3">13.4</span> Noweb</h3>
+<div class="outline-text-3" id="text-13-4">
+<div class="org-src-container">
+
+<pre class="src src-ruby" id="the-script"><span style="color: #e5786d;">puts</span> <span style="color: #cae682;">$F</span>.last
+</pre>
+</div>
+
+<div class="org-src-container">
+
+<pre class="src src-sh">ruby -ane <span style="color: #95e454;">'puts $F.last'</span>
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-13-5" class="outline-3">
+<h3 id="sec-13-5"><span class="section-number-3">13.5</span> Variables</h3>
+<div class="outline-text-3" id="text-13-5">
+<p>
+Pass values <span class="underline">into source block</span>!
+</p>
+<div class="org-src-container">
+
+<pre class="src src-python"><span style="color: #8ac6f2; font-weight: bold;">return</span> 314 * (interest / 100.0)
+</pre>
+</div>
+
+<p>
+Specify multiple variables:
+</p>
+<div class="org-src-container">
+
+<pre class="src src-ruby">[a, b, c, d, e, f, g ]
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-13-6" class="outline-3">
+<h3 id="sec-13-6"><span class="section-number-3">13.6</span> Block-to-Block Value Passing</h3>
+<div class="outline-text-3" id="text-13-6">
+<div class="org-src-container">
+
+<pre class="src src-ruby" id="twelve-primes"><span style="color: #e5786d;">require</span> <span style="color: #95e454;">'prime'</span>
+<span style="color: #92a65e; font-weight: bold;">Prime</span>.first 12
+</pre>
+</div>
+
+<p>
+RESULTS has same name as the block. Pass this result into another
+code block as an array:
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-python"><span style="color: #8ac6f2; font-weight: bold;">return</span> primes[-1]
+</pre>
+</div>
+</div>
+</div>
+
+
+<div id="outline-container-sec-13-7" class="outline-3">
+<h3 id="sec-13-7"><span class="section-number-3">13.7</span> Tabular Variable Data.</h3>
+<div class="outline-text-3" id="text-13-7">
+<p>
+E.g., a table of interesting numbers.
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-emacs-lisp" id="cool-numbers">(mapcar (<span style="color: #8ac6f2; font-weight: bold;">lambda</span> (i)
+          (list i    (random 10)
+                (expt i 2) (random 100)
+                (expt i 3) (random 1000)))
+        (number-sequence 1 10))
+</pre>
+</div>
+
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="right" />
+
+<col  class="right" />
+
+<col  class="right" />
+
+<col  class="right" />
+
+<col  class="right" />
+
+<col  class="right" />
+</colgroup>
+<tbody>
+<tr>
+<td class="right">1</td>
+<td class="right">9</td>
+<td class="right">1</td>
+<td class="right">71</td>
+<td class="right">1</td>
+<td class="right">535</td>
+</tr>
+
+<tr>
+<td class="right">2</td>
+<td class="right">1</td>
+<td class="right">4</td>
+<td class="right">88</td>
+<td class="right">8</td>
+<td class="right">193</td>
+</tr>
+
+<tr>
+<td class="right">3</td>
+<td class="right">6</td>
+<td class="right">9</td>
+<td class="right">3</td>
+<td class="right">27</td>
+<td class="right">108</td>
+</tr>
+
+<tr>
+<td class="right">4</td>
+<td class="right">5</td>
+<td class="right">16</td>
+<td class="right">9</td>
+<td class="right">64</td>
+<td class="right">750</td>
+</tr>
+
+<tr>
+<td class="right">5</td>
+<td class="right">0</td>
+<td class="right">25</td>
+<td class="right">11</td>
+<td class="right">125</td>
+<td class="right">969</td>
+</tr>
+
+<tr>
+<td class="right">6</td>
+<td class="right">9</td>
+<td class="right">36</td>
+<td class="right">47</td>
+<td class="right">216</td>
+<td class="right">124</td>
+</tr>
+
+<tr>
+<td class="right">7</td>
+<td class="right">4</td>
+<td class="right">49</td>
+<td class="right">73</td>
+<td class="right">343</td>
+<td class="right">370</td>
+</tr>
+
+<tr>
+<td class="right">8</td>
+<td class="right">5</td>
+<td class="right">64</td>
+<td class="right">25</td>
+<td class="right">512</td>
+<td class="right">399</td>
+</tr>
+
+<tr>
+<td class="right">9</td>
+<td class="right">9</td>
+<td class="right">81</td>
+<td class="right">94</td>
+<td class="right">729</td>
+<td class="right">765</td>
+</tr>
+
+<tr>
+<td class="right">10</td>
+<td class="right">6</td>
+<td class="right">100</td>
+<td class="right">68</td>
+<td class="right">1000</td>
+<td class="right">76</td>
+</tr>
+</tbody>
+</table>
+
+
+<p>
+use python to generate a list from the array, recriminating each number:
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-python"><span style="color: #8ac6f2; font-weight: bold;">return</span> [ cell + 1 <span style="color: #8ac6f2; font-weight: bold;">for</span> row <span style="color: #8ac6f2; font-weight: bold;">in</span> nums <span style="color: #8ac6f2; font-weight: bold;">for</span> cell <span style="color: #8ac6f2; font-weight: bold;">in</span> row ]
+</pre>
+</div>
+</div>
+
+
+<div id="outline-container-sec-13-7-1" class="outline-4">
+<h4 id="sec-13-7-1"><span class="section-number-4">13.7.1</span> Slicing and Dicing Tables</h4>
+<div class="outline-text-4" id="text-13-7-1">
+<p>
+Get a single row from a table:
+</p>
+<div class="org-src-container">
+
+<pre class="src src-ruby">fifth
+</pre>
+</div>
+
+<p>
+get fifth column of every row
+</p>
+<div class="org-src-container">
+
+<pre class="src src-elisp" id="cubes">cubes
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-13-7-2" class="outline-4">
+<h4 id="sec-13-7-2"><span class="section-number-4">13.7.2</span> Reprocessing</h4>
+<div class="outline-text-4" id="text-13-7-2">
+<p>
+use the results of one block in another:
+</p>
+<div class="org-src-container">
+
+<pre class="src src-python" id="roots_of_list"><span style="color: #8ac6f2; font-weight: bold;">import</span> math
+<span style="color: #8ac6f2; font-weight: bold;">return</span> [math.sqrt(n) <span style="color: #8ac6f2; font-weight: bold;">for</span> n <span style="color: #8ac6f2; font-weight: bold;">in</span> lst]
+</pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-14" class="outline-2">
+<h2 id="sec-14"><span class="section-number-2">14</span> Keeping your Blocks Clean</h2>
+<div class="outline-text-2" id="text-14">
+</div><div id="outline-container-sec-14-1" class="outline-3">
+<h3 id="sec-14-1"><span class="section-number-3">14.1</span> Cleaning Results</h3>
+<div class="outline-text-3" id="text-14-1">
+<p>
+<a href="http://orgmode.org/org.html#post">:post</a> parameter binds reults of codeblock to temp \*this* variable.
+</p>
+
+<p>
+Here the results of `ls -l` are passed through the skip<sub>first</sub> code
+block to remove the first line of output of the ls command.
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-elisp" id="skip_first">(cdr data)
+</pre>
+</div>
+
+<div class="org-src-container">
+
+<pre class="src src-sh">ls -l
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-14-2" class="outline-3">
+<h3 id="sec-14-2"><span class="section-number-3">14.2</span> </h3>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="author">Author: Dmitri G. Brengauz</p>
+<p class="date">Created: 2016-03-22 Tue 15:46</p>
+<p class="creator"><a href="http://www.gnu.org/software/emacs/">Emacs</a> 24.5.1 (<a href="http://orgmode.org">Org</a> mode 8.2.10)</p>
+<p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>
