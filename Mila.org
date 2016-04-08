@@ -3,12 +3,9 @@
 #+EMAIL:  dmitri@momus.net
 #+DATE:   3 March 2016
 #+TAGS:   freebsd technical
-#+DESCRIPTION: Tangle-able notes on setting up IPTables that can install a nifty script
-#+PROPERTY:    results drawer
-#+PROPERTY:    eval no-export
-#+PROPERTY:    comments org
-#+PROPERTY:    tangle /ssh:troll.howardabrams.com:bin/setup-iptables.sh
-#+PROPERTY:    dir /ssh:troll.howardabrams.com:
+#+DESCRIPTION: Setup for Mila.cat development and deploy
+
+
 * What am I doing?
   The idea of literate programing holds obvious attractions; the idea
   of literate DevOps even more so: in theory, an enitre site can be
@@ -25,4 +22,147 @@
        server on Digital Ocean
     5. Profit!!!
 
-*** 
+*** TODO [0/2] Modify [[https://github.com/wunki/vagrant-freebsd/blob/master/Vagrantfile][wunki's]] Vagrantfile, to suit our needs.:
+
+     - [ ] Out of the box, wunki uses Virtual box. Change this to libvirt for a speedup.
+     #+BEGIN_SRC ruby :tangle Vagrantfile
+       # -*- mode: ruby; -*-
+
+       
+       ENV['VAGRANT_DEFAULT_PROVIDER'] = 'virtualbox'
+
+       Vagrant.configure("2") do |config|
+         config.vm.guest = :freebsd
+         config.vm.network "public_network"
+     #+END_SRC
+     
+     - [ ] Initially, NFS shared folders don't work. Right now, I don't care.
+       
+     #+BEGIN_SRC ruby :tangle Vagrantfile
+       # Use NFS as a shared folder
+       #config.vm.synced_folder ".", "/vagrant", :nfs => true, id: "vagrant-root"
+
+       config.vm.provider :virtualbox do |vb, override|
+         override.vm.box_url = "https://wunki.org/files/freebsd-10.2-amd64-wunki.box"
+         override.vm.box = "freebsd-10.2-amd64-wunki"
+
+         # vb.customize ["startvm", :id, "--type", "gui"]
+         vb.customize ["modifyvm", :id, "--memory", "512"]
+         vb.customize ["modifyvm", :id, "--cpus", "2"]
+         vb.customize ["modifyvm", :id, "--hwvirtex", "on"]
+         vb.customize ["modifyvm", :id, "--audio", "none"]
+                  vb.customize ["modifyvm", :id, "--nictype1", "virtio"]
+                  vb.customize ["modifyvm", :id, "--nictype2", "virtio"]
+                end
+       end
+     #+END_SRC
+
+*** Starting the VM
+    Because of lag time, currently running "vagrant up" in an eterm buffer.
+
+***** Vagrant vagrancies
+     - virtual box depends on kernel modules, these have to manually
+       be updated whenever the kernel packages are updated.
+       1. Run `VBoxManage --version` to see if this is the problem.
+       2. Then `sudo /etc/init.d/vboxdrv setup` to fix it.
+     - `vagrant up` should be ready to go.
+     - use `[[https://github.com/dergachev/vagrant-vbox-snapshot][vagrant plugin install vagrant-vbox-snapshot]]` for our
+       current VBox setup
+     - `vagrant snapshot take BOXNAME  NAME` before we go too crazy
+        
+
+*** Verifying the ssh connection
+     #+BEGIN_SRC sh :dir /ssh:MilaVM:~
+     uname -a
+     #+END_SRC
+
+     #+RESULTS:
+     : FreeBSD vagrant-freebsd-10 10.2-RELEASE FreeBSD 10.2-RELEASE #0 r286666: Wed Aug 12 15:26:37 UTC 2015     root@releng1.nyi.freebsd.org:/usr/obj/usr/src/sys/GENERIC  amd64
+
+*** Updating operating system before installing software
+    `freebsd-update fetch` and `install` are meant to be used
+    interactively, from here we can run the cron script
+    #+BEGIN_SRC sh :dir /ssh:MilaVM:~
+      sudo freebsd-update cron
+    #+END_SRC
+    update pkg packages
+    #+BEGIN_SRC sh :dir /ssh:MilaVM:~
+     sudo pkg upgrade --yes --quiet
+    #+END_SRC
+
+    #+RESULTS:
+    | src component not installed                      | skipped |
+
+
+* FreeBSD Rails server general system setup
+
+*** Directory adjustments
+    - Source directory for tarball installs
+      #+BEGIN_SRC sh :dir /ssh:MilaVM:~
+        mkdir ~/src
+      #+END_SRC
+
+*** Needful software
+    - Git, of course
+      #+BEGIN_SRC sh :dir /ssh:MilaVM:~
+      sudo pkg install --yes --quiet git
+      #+END_SRC
+   
+
+*** Installing Ruby and Gems
+    - Just to make things simple and perhaps secure, let's use FreeBSD's
+      ruby package.  This will be my system ruby, so create a symbolic ling between
+      the executable and /usr/bin/ruby
+ 
+      #+BEGIN_SRC sh :dir /ssh:MilaVM:~
+        sudo pkg install --yes --quiet ruby23
+        sudo ln -s /usr/local/bin/ruby23 /usr/bin/ruby
+        ruby --version
+      #+END_SRC
+
+      #+RESULTS:
+      | The  | most    | recent      | version  |     of | packages          | are | already | installed |
+      | ruby | 2.3.0p0 | (2015-12-25 | revision | 53290) | [amd64-freebsd10] |     |         |           |
+
+    - Gems: download from Github, use ruby to install system-wide.
+      This leaves a 23MB src directory, which could be removed if
+      desperate for space.
+      #+BEGIN_SRC sh :dir /ssh:MilaVM:~/src
+        #git clone https://github.com/rubygems/rubygems
+        #sudo ruby ~/src/rubygems/setup.rb
+        sudo ln -s /usr/local/bin/gem23 /usr/bin/gem
+        gem --version
+      #+END_SRC
+
+      #+RESULTS:
+      : 2.6.3
+
+
+
+
+
+* Wrong Turns
+
+*** Rbenv later? 
+    Because of this [[https://www.ixsystems.com/blog/freebsd-on-rails/][iX Systems Article]] I decided on rbenv to install
+    ruby.
+
+    #+BEGIN_SRC sh :dir /ssh:MilaVM:~
+    sudo pkg install --yes  --quiet devel/rbenv
+    #+END_SRC
+
+    - Install the [[https://github.com/rbenv/ruby-build#readme][ruby-build]] plugin to ease install of rubies.
+      #+BEGIN_SRC sh :dir /ssh:MilaVM:~
+        git clone https://github.com/rbenv/ruby-build.git ~/.rbenv/plugins/ruby-build
+      #+END_SRC
+    - Using ruby-build, fetch and install the proper ruby:
+      #+BEGIN_SRC sh :dir /ssh:MilaVM:~
+      
+      #+END_SRC
+
+
+    #+RESULTS:
+
+    
+  
+
