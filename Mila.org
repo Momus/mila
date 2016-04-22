@@ -5,7 +5,6 @@
 #+TAGS:   freebsd technical
 #+DESCRIPTION: Setup for Mila.cat development and deploy
 
-
 * What am I doing?
   The idea of literate programing holds obvious attractions; the idea
   of literate DevOps even more so: in theory, an enitre site can be
@@ -20,7 +19,7 @@
     3. Incorporate Vagrantfile into this document
     4. Use steps divined for Vagrantfile to configure production
        server on Digital Ocean
-    5. Profit!!!
+    6. Profit!!!
 
 *** TODO [0/2] Modify [[https://github.com/wunki/vagrant-freebsd/blob/master/Vagrantfile][wunki's]] Vagrantfile, to suit our needs.:
 
@@ -93,7 +92,6 @@
     #+RESULTS:
     | src component not installed                      | skipped |
 
-
 * FreeBSD Rails server general system setup
 
 *** Directory adjustments
@@ -107,6 +105,10 @@
       #+BEGIN_SRC sh :dir /ssh:MilaVM:~
       sudo pkg install --yes --quiet git
       #+END_SRC
+
+      #+RESULTS:
+      : The most recent version of packages are already installed
+
    
 
 *** Installing Ruby and Gems
@@ -141,8 +143,112 @@
 
 
 
-* Wrong Turns
+*** Installing Apache
+    Start with the [[https://www.freebsd.org/doc/handbook/network-apache.html][Basic Freebsd]] Apache installation:
+    - Grab the package and install it:
+      #+BEGIN_SRC sh :dir /ssh:MilaVM:~
+        sudo pkg install --yes --quiet apache24 
+      #+END_SRC
 
+    - Initial run RESULTS:
+      | ===>  Creating users and/or groups.
+      | Using existing group 'www'.
+      | Using existing user 'www'.
+      | Message from apache24-2.4.18:
+      | To run apache www server from startup, add yes
+      | in your /etc/rc.conf. Extra options can be found in startup script.
+
+      | Your hostname must be resolvable using at least 1 mechanism in    |
+      | /etc/nsswitch.conf typically DNS or /etc/hosts or apache might    |
+      | have issues starting depending on the modules you are using.      |
+      |                                                                   |
+      | !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! |
+      |                                                                   |
+      | apache24 default build changed from static MPM to modular MPM     |
+      | - more modules are now enabled per default in the port            | 
+      | - icons and error pages moved from WWWDIR to DATADIR              |
+      |                                                                   |
+      | If build with modular MPM and no MPM is  activated in             |
+      | httpd.conf, then mpm_prefork will be activated as default         |
+      | MPM in etc/apache24/modules.d to keep compatibility with          |
+      | existing php/perl/python modules! |         |    |           |    |
+      |                                                                   |
+      | Please compare the existing httpd.conf with httpd.conf.sample     |
+      | and merge missing modules/instructions into httpd.conf!           |
+      |                                                                   |
+      | !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! |
+
+    - Modify /etc/rc.conf to start apache by default
+      This I do directly now, but will script at later day;
+
+    - Apache should start:
+      #+BEGIN_SRC sh :dir /ssh:MilaVM:~
+      sudo service apache24 start
+      #+END_SRC
+
+      #+RESULTS:
+      | Performing | sanity    | check | on | apache24 | configuration: |
+      | Starting   | apache24. |       |    |          |                |
+
+      
+*** Install [[https://www.phusionpassenger.com/library/walkthroughs/deploy/ruby/ownserver/apache/oss/rubygems_norvm/install_passenger.html][Phusion Passenger]]
+    - Install the gems
+      #+BEGIN_SRC sh :dir /ssh:MilaVM:~
+      sudo gem install passenger --no-rdoc --no-ri
+      #+END_SRC
+
+      - Initial  RESULTS:
+        | Fetching:    | rake-11.1.2.gem                               |                  |
+        | Successfully | installed                                     | rake-11.1.2      |
+        | Fetching:    | rack-1.6.4.gem                                |                  |
+        | Successfully | installed                                     | rack-1.6.4       |
+        | Fetching:    | passenger-5.0.27.gem                          |                  |
+        | Building     | native extensions. This could take a while... |                  |
+        | Successfully | installed                                     | passenger-5.0.27 |
+        | 3            | gems                                          | installed        |
+
+    - run Passenger Apache module installer
+      Had a [[https://github.com/phusion/passenger/issues/1586][problem]] compiling on the VM; 
+      This is an interactive installer, so we will have to figure out
+      how to automate this later
+      #+ sh :dir /ssh:MilaVM:~
+      sudo passenger-install-apache2-module
+      #+END_SRC
+      
+      #+RESULTS:
+      Please edit your Apache configuration file, and add these lines:
+      
+        LoadModule passenger_module /usr/local/lib/ruby/gems/2.3/gems/passenger-5.0.27/buildout/apache2/mod_passenger.so
+       <IfModule mod_passenger.c>
+       PassengerRoot /usr/local/lib/ruby/gems/2.3/gems/passenger-5.0.27
+       PassengerDefaultRuby /usr/local/bin/ruby23
+       </IfModule>
+    
+      After you restart Apache, you are ready to deploy any number of web
+      applications on Apache, with a minimum amount of configuration!
+    
+
+       Checking whether the Passenger module is correctly configured in Apache... (!)
+      
+      You did not specify 'LoadModule passenger_module' in any of your Apache
+      configuration files. Please paste the configuration snippet that this
+      installer printed earlier, into one of your Apache configuration files, such
+      as /usr/local/etc/apache24/httpd.conf.
+
+
+   Detected 0 error(s), 1 warning(s)
+
+   To learn how to deploy a web app on Passenger, please follow the deployment
+   guide:
+
+   https://www.phusionpassenger.com/library/deploy/apache/deploy/
+
+   Enjoy Phusion Passenger, a product of Phusion (www.phusion.nl) :-)
+   https://www.phusionpassenger.com
+
+
+
+* Wrong Turns
 *** Rbenv later? 
     Because of this [[https://www.ixsystems.com/blog/freebsd-on-rails/][iX Systems Article]] I decided on rbenv to install
     ruby.
