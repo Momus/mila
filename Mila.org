@@ -23,6 +23,8 @@
 
 *** TODO [0/2] Modify [[https://github.com/wunki/vagrant-freebsd/blob/master/Vagrantfile][wunki's]] Vagrantfile, to suit our needs.:
 
+     - [ ] Resize the hard disk. Default is ridiculously small.
+
      - [ ] Out of the box, wunki uses Virtual box. Change this to libvirt for a speedup.
      #+BEGIN_SRC ruby :tangle Vagrantfile
        # -*- mode: ruby; -*-
@@ -36,6 +38,7 @@
      #+END_SRC
      
      - [ ] Initially, NFS shared folders don't work. Right now, I don't care.
+
        
      #+BEGIN_SRC ruby :tangle Vagrantfile
        # Use NFS as a shared folder
@@ -55,6 +58,7 @@
                 end
        end
      #+END_SRC
+     - [ ] Set up [[http://blog.osteel.me/posts/2015/01/25/how-to-use-vagrant-for-local-web-development.html][port forwarding]] to view the lovely Rails-Elm app in it's full glory.
 
 *** Starting the VM
     Because of lag time, currently running "vagrant up" in an eterm buffer.
@@ -103,11 +107,12 @@
 *** Needful software
     - Git, of course
       #+BEGIN_SRC sh :dir /ssh:MilaVM:~
-      sudo pkg install --yes --quiet git
+        sudo pkg install --yes --quiet git
+        #For rails
+        sudo pkg install --yes --quiet -r bison curl gdbm git libtool libxml2 libxslt
       #+END_SRC
 
       #+RESULTS:
-      : The most recent version of packages are already installed
 
    
 
@@ -138,10 +143,6 @@
 
       #+RESULTS:
       : 2.6.3
-
-
-
-
 
 *** Installing Apache
     Start with the [[https://www.freebsd.org/doc/handbook/network-apache.html][Basic Freebsd]] Apache installation:
@@ -190,7 +191,44 @@
       | Performing | sanity    | check | on | apache24 | configuration: |
       | Starting   | apache24. |       |    |          |                |
 
-      
+*** Postgres
+    Started with [[https://jasonk2600.wordpress.com/2010/01/11/installing-postgresql-on-freebsd/][this tutorial]]
+    Install and enable on startup
+    #+BEGIN_SRC sh :dir /ssh:MilaVM:~
+      sudo pkg install --yes --quiet postgresql93-server postgresql93-client
+      sudo echo postgresql_enable="YES" >> /etc/rc.conf
+    #+END_SRC
+    - Initialize PostgreSQL database cluster
+      #+BEGIN_SRC sh :dir /ssh:MilaVM:~
+      sudo /usr/local/etc/rc.d/postgresql initdb
+      #+END_SRC
+
+      #+RESULTS:
+            | The  files belonging to this database system                              |
+            | will be owned by user pgsql                                               |
+            | This user must also own the server process                                |
+            | The database cluster will be initialized with locale C                    |
+            | The default text search configuration will be set to english              |
+            | Data  page checksums are disabled.                                        |
+            | Success.  You can now start the database server using:                    |
+            | /usr/local/bin/postgres -D   /usr/local/pgsql/data                        |
+            | or                                                                        |
+            | /usr/local/bin/pg_ctl   -D   /usr/local/pgsql/data   -l   logfile   start |
+
+
+
+      - /usr/local/pgsql/data/postgresql.conf
+        set listen_address to 'localhost'
+      - use password hash authentication for all hosts and users
+        /usr/local/pgsql/data/pg_hba.conf
+      - Start DBMS for first time and add a new super-user
+        (with database and role creation rights
+        - /usr/local/etc/rc.d/postgresql start
+        -su pgsql
+        - createuser -sdrP /username/
+        - Enter password for new role:
+        - Enter it again:
+
 *** Install [[https://www.phusionpassenger.com/library/walkthroughs/deploy/ruby/ownserver/apache/oss/rubygems_norvm/install_passenger.html][Phusion Passenger]]
     - Install the gems
       #+BEGIN_SRC sh :dir /ssh:MilaVM:~
@@ -248,7 +286,282 @@
 
 
 
+
+
+* Mila.cat Rails-Elm app
+
+*** Install rails gem
+    #+BEGIN_SRC sh :dir /ssh:MilaVM:~
+      sudo pkg install --yes node-devel www/npm
+      sudo gem install rails  --no-rdoc --no-ri
+    #+END_SRC
+
+***  [[https://www.digitalocean.com/community/tutorials/how-to-setup-ruby-on-rails-with-postgres][Postgres and Rails]]
+     - Install the posrgres gem:
+       #+BEGIN_SRC  sh :dir /ssh:MilaVM:~
+       sudo gem install pg --no-doc --no-ri
+       #+END_SRC
+     - Create a user for the app:
+         - sudo  su - pgsql
+         - createuser --createdb -P -R -e /username/ 
+
+
+***  Initialize application
+     #+BEGIN_SRC sh :dir /ssh:MilaVM:~
+       rails new mila --database=postgresql 
+     #+END_SRC
+
+     #+RESULTS:
+     | [1m[32m  | create[0m                                              |                                                 |             |                                  |            |           |           |            |     |         |            |         |       |
+     | [1m[32m  | create[0m                                              | README.rdoc                                     |             |                                  |            |           |           |            |     |         |            |         |       |
+     | [1m[32m  | create[0m                                              | Rakefile                                        |             |                                  |            |           |           |            |     |         |            |         |       |
+     | [1m[32m  | create[0m                                              | config.ru                                       |             |                                  |            |           |           |            |     |         |            |         |       |
+     | [1m[32m  | create[0m                                              | .gitignore                                      |             |                                  |            |           |           |            |     |         |            |         |       |
+     | [1m[32m  | create[0m                                              | Gemfile                                         |             |                                  |            |           |           |            |     |         |            |         |       |
+     | [1m[32m  | create[0m                                              | app                                             |             |                                  |            |           |           |            |     |         |            |         |       |
+     | [1m[32m  | create[0m                                              | app/assets/javascripts/application.js           |             |                                  |            |           |           |            |     |         |            |         |       |
+     | [1m[32m  | create[0m                                              | app/assets/stylesheets/application.css          |             |                                  |            |           |           |            |     |         |            |         |       |
+     | [1m[32m  | create[0m                                              | app/controllers/application_controller.rb       |             |                                  |            |           |           |            |     |         |            |         |       |
+     | [1m[32m  | create[0m                                              | app/helpers/application_helper.rb               |             |                                  |            |           |           |            |     |         |            |         |       |
+     | [1m[32m  | create[0m                                              | app/views/layouts/application.html.erb          |             |                                  |            |           |           |            |     |         |            |         |       |
+     | [1m[32m  | create[0m                                              | app/assets/images/.keep                         |             |                                  |            |           |           |            |     |         |            |         |       |
+     | [1m[32m  | create[0m                                              | app/mailers/.keep                               |             |                                  |            |           |           |            |     |         |            |         |       |
+     | [1m[32m  | create[0m                                              | app/models/.keep                                |             |                                  |            |           |           |            |     |         |            |         |       |
+     | [1m[32m  | create[0m                                              | app/controllers/concerns/.keep                  |             |                                  |            |           |           |            |     |         |            |         |       |
+     | [1m[32m  | create[0m                                              | app/models/concerns/.keep                       |             |                                  |            |           |           |            |     |         |            |         |       |
+     | [1m[32m  | create[0m                                              | bin                                             |             |                                  |            |           |           |            |     |         |            |         |       |
+     | [1m[32m  | create[0m                                              | bin/bundle                                      |             |                                  |            |           |           |            |     |         |            |         |       |
+     | [1m[32m  | create[0m                                              | bin/rails                                       |             |                                  |            |           |           |            |     |         |            |         |       |
+     | [1m[32m  | create[0m                                              | bin/rake                                        |             |                                  |            |           |           |            |     |         |            |         |       |
+     | [1m[32m  | create[0m                                              | bin/setup                                       |             |                                  |            |           |           |            |     |         |            |         |       |
+     | [1m[32m  | create[0m                                              | config                                          |             |                                  |            |           |           |            |     |         |            |         |       |
+     | [1m[32m  | create[0m                                              | config/routes.rb                                |             |                                  |            |           |           |            |     |         |            |         |       |
+     | [1m[32m  | create[0m                                              | config/application.rb                           |             |                                  |            |           |           |            |     |         |            |         |       |
+     | [1m[32m  | create[0m                                              | config/environment.rb                           |             |                                  |            |           |           |            |     |         |            |         |       |
+     | [1m[32m  | create[0m                                              | config/secrets.yml                              |             |                                  |            |           |           |            |     |         |            |         |       |
+     | [1m[32m  | create[0m                                              | config/environments                             |             |                                  |            |           |           |            |     |         |            |         |       |
+     | [1m[32m  | create[0m                                              | config/environments/development.rb              |             |                                  |            |           |           |            |     |         |            |         |       |
+     | [1m[32m  | create[0m                                              | config/environments/production.rb               |             |                                  |            |           |           |            |     |         |            |         |       |
+     | [1m[32m  | create[0m                                              | config/environments/test.rb                     |             |                                  |            |           |           |            |     |         |            |         |       |
+     | [1m[32m  | create[0m                                              | config/initializers                             |             |                                  |            |           |           |            |     |         |            |         |       |
+     | [1m[32m  | create[0m                                              | config/initializers/assets.rb                   |             |                                  |            |           |           |            |     |         |            |         |       |
+     | [1m[32m  | create[0m                                              | config/initializers/backtrace_silencers.rb      |             |                                  |            |           |           |            |     |         |            |         |       |
+     | [1m[32m  | create[0m                                              | config/initializers/cookies_serializer.rb       |             |                                  |            |           |           |            |     |         |            |         |       |
+     | [1m[32m  | create[0m                                              | config/initializers/filter_parameter_logging.rb |             |                                  |            |           |           |            |     |         |            |         |       |
+     | [1m[32m  | create[0m                                              | config/initializers/inflections.rb              |             |                                  |            |           |           |            |     |         |            |         |       |
+     | [1m[32m  | create[0m                                              | config/initializers/mime_types.rb               |             |                                  |            |           |           |            |     |         |            |         |       |
+     | [1m[32m  | create[0m                                              | config/initializers/session_store.rb            |             |                                  |            |           |           |            |     |         |            |         |       |
+     | [1m[32m  | create[0m                                              | config/initializers/wrap_parameters.rb          |             |                                  |            |           |           |            |     |         |            |         |       |
+     | [1m[32m  | create[0m                                              | config/locales                                  |             |                                  |            |           |           |            |     |         |            |         |       |
+     | [1m[32m  | create[0m                                              | config/locales/en.yml                           |             |                                  |            |           |           |            |     |         |            |         |       |
+     | [1m[32m  | create[0m                                              | config/boot.rb                                  |             |                                  |            |           |           |            |     |         |            |         |       |
+     | [1m[32m  | create[0m                                              | config/database.yml                             |             |                                  |            |           |           |            |     |         |            |         |       |
+     | [1m[32m  | create[0m                                              | db                                              |             |                                  |            |           |           |            |     |         |            |         |       |
+     | [1m[32m  | create[0m                                              | db/seeds.rb                                     |             |                                  |            |           |           |            |     |         |            |         |       |
+     | [1m[32m  | create[0m                                              | lib                                             |             |                                  |            |           |           |            |     |         |            |         |       |
+     | [1m[32m  | create[0m                                              | lib/tasks                                       |             |                                  |            |           |           |            |     |         |            |         |       |
+     | [1m[32m  | create[0m                                              | lib/tasks/.keep                                 |             |                                  |            |           |           |            |     |         |            |         |       |
+     | [1m[32m  | create[0m                                              | lib/assets                                      |             |                                  |            |           |           |            |     |         |            |         |       |
+     | [1m[32m  | create[0m                                              | lib/assets/.keep                                |             |                                  |            |           |           |            |     |         |            |         |       |
+     | [1m[32m  | create[0m                                              | log                                             |             |                                  |            |           |           |            |     |         |            |         |       |
+     | [1m[32m  | create[0m                                              | log/.keep                                       |             |                                  |            |           |           |            |     |         |            |         |       |
+     | [1m[32m  | create[0m                                              | public                                          |             |                                  |            |           |           |            |     |         |            |         |       |
+     | [1m[32m  | create[0m                                              | public/404.html                                 |             |                                  |            |           |           |            |     |         |            |         |       |
+     | [1m[32m  | create[0m                                              | public/422.html                                 |             |                                  |            |           |           |            |     |         |            |         |       |
+     | [1m[32m  | create[0m                                              | public/500.html                                 |             |                                  |            |           |           |            |     |         |            |         |       |
+     | [1m[32m  | create[0m                                              | public/favicon.ico                              |             |                                  |            |           |           |            |     |         |            |         |       |
+     | [1m[32m  | create[0m                                              | public/robots.txt                               |             |                                  |            |           |           |            |     |         |            |         |       |
+     | [1m[32m  | create[0m                                              | test/fixtures                                   |             |                                  |            |           |           |            |     |         |            |         |       |
+     | [1m[32m  | create[0m                                              | test/fixtures/.keep                             |             |                                  |            |           |           |            |     |         |            |         |       |
+     | [1m[32m  | create[0m                                              | test/controllers                                |             |                                  |            |           |           |            |     |         |            |         |       |
+     | [1m[32m  | create[0m                                              | test/controllers/.keep                          |             |                                  |            |           |           |            |     |         |            |         |       |
+     | [1m[32m  | create[0m                                              | test/mailers                                    |             |                                  |            |           |           |            |     |         |            |         |       |
+     | [1m[32m  | create[0m                                              | test/mailers/.keep                              |             |                                  |            |           |           |            |     |         |            |         |       |
+     | [1m[32m  | create[0m                                              | test/models                                     |             |                                  |            |           |           |            |     |         |            |         |       |
+     | [1m[32m  | create[0m                                              | test/models/.keep                               |             |                                  |            |           |           |            |     |         |            |         |       |
+     | [1m[32m  | create[0m                                              | test/helpers                                    |             |                                  |            |           |           |            |     |         |            |         |       |
+     | [1m[32m  | create[0m                                              | test/helpers/.keep                              |             |                                  |            |           |           |            |     |         |            |         |       |
+     | [1m[32m  | create[0m                                              | test/integration                                |             |                                  |            |           |           |            |     |         |            |         |       |
+     | [1m[32m  | create[0m                                              | test/integration/.keep                          |             |                                  |            |           |           |            |     |         |            |         |       |
+     | [1m[32m  | create[0m                                              | test/test_helper.rb                             |             |                                  |            |           |           |            |     |         |            |         |       |
+     | [1m[32m  | create[0m                                              | tmp/cache                                       |             |                                  |            |           |           |            |     |         |            |         |       |
+     | [1m[32m  | create[0m                                              | tmp/cache/assets                                |             |                                  |            |           |           |            |     |         |            |         |       |
+     | [1m[32m  | create[0m                                              | vendor/assets/javascripts                       |             |                                  |            |           |           |            |     |         |            |         |       |
+     | [1m[32m  | create[0m                                              | vendor/assets/javascripts/.keep                 |             |                                  |            |           |           |            |     |         |            |         |       |
+     | [1m[32m  | create[0m                                              | vendor/assets/stylesheets                       |             |                                  |            |           |           |            |     |         |            |         |       |
+     | [1m[32m  | create[0m                                              | vendor/assets/stylesheets/.keep                 |             |                                  |            |           |           |            |     |         |            |         |       |
+     | [1m[32m  | run[0m                                                 | bundle                                          | install     |                                  |            |           |           |            |     |         |            |         |       |
+     | Fetching     | gem                                                      | metadata                                        | from        | https://rubygems.org/........... |            |           |           |            |     |         |            |         |       |
+     | Fetching     | version                                                  | metadata                                        | from        | https://rubygems.org/...         |            |           |           |            |     |         |            |         |       |
+     | Fetching     | dependency                                               | metadata                                        | from        | https://rubygems.org/..          |            |           |           |            |     |         |            |         |       |
+     | Resolving    | dependencies............................................ |                                                 |             |                                  |            |           |           |            |     |         |            |         |       |
+     | Using        | rake                                                     | 11.1.2                                          |             |                                  |            |           |           |            |     |         |            |         |       |
+     | Using        | i18n                                                     | 0.7.0                                           |             |                                  |            |           |           |            |     |         |            |         |       |
+     | Using        | json                                                     | 1.8.3                                           |             |                                  |            |           |           |            |     |         |            |         |       |
+     | Using        | minitest                                                 | 5.8.4                                           |             |                                  |            |           |           |            |     |         |            |         |       |
+     | Using        | thread_safe                                              | 0.3.5                                           |             |                                  |            |           |           |            |     |         |            |         |       |
+     | Using        | builder                                                  | 3.2.2                                           |             |                                  |            |           |           |            |     |         |            |         |       |
+     | Using        | erubis                                                   | 2.7.0                                           |             |                                  |            |           |           |            |     |         |            |         |       |
+     | Using        | mini_portile2                                            | 2.0.0                                           |             |                                  |            |           |           |            |     |         |            |         |       |
+     | Using        | rack                                                     | 1.6.4                                           |             |                                  |            |           |           |            |     |         |            |         |       |
+     | Using        | mime-types-data                                          | 3.2016.0221                                     |             |                                  |            |           |           |            |     |         |            |         |       |
+     | Using        | arel                                                     | 6.0.3                                           |             |                                  |            |           |           |            |     |         |            |         |       |
+     | Installing   | debug_inspector                                          | 0.0.2                                           | with        | native                           | extensions |           |           |            |     |         |            |         |       |
+     | Using        | bundler                                                  | 1.11.2                                          |             |                                  |            |           |           |            |     |         |            |         |       |
+     | Installing   | byebug                                                   | 8.2.4                                           | with        | native                           | extensions |           |           |            |     |         |            |         |       |
+     | Installing   | coffee-script-source                                     | 1.10.0                                          |             |                                  |            |           |           |            |     |         |            |         |       |
+     | Installing   | execjs                                                   | 2.6.0                                           |             |                                  |            |           |           |            |     |         |            |         |       |
+     | Using        | thor                                                     | 0.19.1                                          |             |                                  |            |           |           |            |     |         |            |         |       |
+     | Using        | concurrent-ruby                                          | 1.0.1                                           |             |                                  |            |           |           |            |     |         |            |         |       |
+     | Installing   | multi_json                                               | 1.11.2                                          |             |                                  |            |           |           |            |     |         |            |         |       |
+     | Using        | pg                                                       | 0.18.4                                          |             |                                  |            |           |           |            |     |         |            |         |       |
+     | Installing   | sass                                                     | 3.4.22                                          |             |                                  |            |           |           |            |     |         |            |         |       |
+     | Installing   | tilt                                                     | 2.0.2                                           |             |                                  |            |           |           |            |     |         |            |         |       |
+     | Installing   | spring                                                   | 1.7.1                                           |             |                                  |            |           |           |            |     |         |            |         |       |
+     | Installing   | rdoc                                                     | 4.2.2                                           |             |                                  |            |           |           |            |     |         |            |         |       |
+     | Using        | tzinfo                                                   | 1.2.2                                           |             |                                  |            |           |           |            |     |         |            |         |       |
+     | Using        | nokogiri                                                 | 1.6.7.2                                         |             |                                  |            |           |           |            |     |         |            |         |       |
+     | Using        | rack-test                                                | 0.6.3                                           |             |                                  |            |           |           |            |     |         |            |         |       |
+     | Using        | mime-types                                               | 3.0                                             |             |                                  |            |           |           |            |     |         |            |         |       |
+     | Installing   | binding_of_caller                                        | 0.7.2                                           | with        | native                           | extensions |           |           |            |     |         |            |         |       |
+     | Installing   | coffee-script                                            | 2.4.1                                           |             |                                  |            |           |           |            |     |         |            |         |       |
+     | Installing   | uglifier                                                 | 3.0.0                                           |             |                                  |            |           |           |            |     |         |            |         |       |
+     | Using        | sprockets                                                | 3.6.0                                           |             |                                  |            |           |           |            |     |         |            |         |       |
+     | Installing   | sdoc                                                     | 0.4.1                                           |             |                                  |            |           |           |            |     |         |            |         |       |
+     | Using        | activesupport                                            | 4.2.6                                           |             |                                  |            |           |           |            |     |         |            |         |       |
+     | Using        | loofah                                                   | 2.0.3                                           |             |                                  |            |           |           |            |     |         |            |         |       |
+     | Using        | mail                                                     | 2.6.4                                           |             |                                  |            |           |           |            |     |         |            |         |       |
+     | Using        | rails-deprecated_sanitizer                               | 1.0.3                                           |             |                                  |            |           |           |            |     |         |            |         |       |
+     | Using        | globalid                                                 | 0.3.6                                           |             |                                  |            |           |           |            |     |         |            |         |       |
+     | Using        | activemodel                                              | 4.2.6                                           |             |                                  |            |           |           |            |     |         |            |         |       |
+     | Installing   | jbuilder                                                 | 2.4.1                                           |             |                                  |            |           |           |            |     |         |            |         |       |
+     | Using        | rails-html-sanitizer                                     | 1.0.3                                           |             |                                  |            |           |           |            |     |         |            |         |       |
+     | Using        | rails-dom-testing                                        | 1.0.7                                           |             |                                  |            |           |           |            |     |         |            |         |       |
+     | Using        | activejob                                                | 4.2.6                                           |             |                                  |            |           |           |            |     |         |            |         |       |
+     | Using        | activerecord                                             | 4.2.6                                           |             |                                  |            |           |           |            |     |         |            |         |       |
+     | Using        | actionview                                               | 4.2.6                                           |             |                                  |            |           |           |            |     |         |            |         |       |
+     | Using        | actionpack                                               | 4.2.6                                           |             |                                  |            |           |           |            |     |         |            |         |       |
+     | Using        | actionmailer                                             | 4.2.6                                           |             |                                  |            |           |           |            |     |         |            |         |       |
+     | Using        | railties                                                 | 4.2.6                                           |             |                                  |            |           |           |            |     |         |            |         |       |
+     | Using        | sprockets-rails                                          | 3.0.4                                           |             |                                  |            |           |           |            |     |         |            |         |       |
+     | Installing   | coffee-rails                                             | 4.1.1                                           |             |                                  |            |           |           |            |     |         |            |         |       |
+     | Installing   | jquery-rails                                             | 4.1.1                                           |             |                                  |            |           |           |            |     |         |            |         |       |
+     | Using        | rails                                                    | 4.2.6                                           |             |                                  |            |           |           |            |     |         |            |         |       |
+     | Installing   | sass-rails                                               | 5.0.4                                           |             |                                  |            |           |           |            |     |         |            |         |       |
+     | Installing   | web-console                                              | 2.3.0                                           |             |                                  |            |           |           |            |     |         |            |         |       |
+     | Installing   | turbolinks                                               | 2.5.3                                           |             |                                  |            |           |           |            |     |         |            |         |       |
+     | Bundle       | complete!                                                | 12                                              | Gemfile     | dependencies,                    | 55         | gems      | now       | installed. |     |         |            |         |       |
+     | Use          | `bundle                                                  | show                                            | [gemname]`  | to                               | see        | where     | a         | bundled    | gem | is      | installed. |         |       |
+     | Post-install | message                                                  | from                                            | rdoc:       |                                  |            |           |           |            |     |         |            |         |       |
+     | Depending    | on                                                       | your                                            | version     | of                               | ruby,      | you       | may       | need       | to  | install | ruby       | rdoc/ri | data: |
+     |              |                                                          |                                                 |             |                                  |            |           |           |            |     |         |            |         |       |
+     | <=           | 1.8.6                                                    | :                                               | unsupported |                                  |            |           |           |            |     |         |            |         |       |
+     | =            | 1.8.7                                                    | :                                               | gem         | install                          | rdoc-data; | rdoc-data | --install |            |     |         |            |         |       |
+     | =            | 1.9.1                                                    | :                                               | gem         | install                          | rdoc-data; | rdoc-data | --install |            |     |         |            |         |       |
+     | >=           | 1.9.2                                                    | :                                               | nothing     | to                               | do!        | Yay!      |           |            |     |         |            |         |       |
+
+***** TODO Configure the application database
+      What I have should work fine, but maybe look more into config/database.yml
+      In general database.yml should look like this:
+      #+BEGIN_SRC ruby
+        development:
+          adapter: postgresql
+          encoding: unicode
+          database: myapp_development
+          pool: 5
+          username: myapp
+          password: password1
+
+        test:
+          adapter: postgresql
+          encoding: unicode
+          database: myapp_test
+          pool: 5
+          username: myapp
+          password: password1
+                  
+      #+END_SRC
+      but I am leaving it out of this file for now.
+***** Initial Gemfile:
+      made to look like the book, except version numbers with default Rails gave.
+      Except web-console
+      #+BEGIN_SRC sh :dir /ssh:MilaVM:~/mila/
+      bundle install --without production
+      #+END_SRC
+
+      #+RESULTS:
+      | Using        | rake                       |      11.1.2 |            |               |      |       |                 |                 |     |    |                 |
+      | Using        | i18n                       |       0.7.0 |            |               |      |       |                 |                 |     |    |                 |
+      | Using        | json                       |       1.8.3 |            |               |      |       |                 |                 |     |    |                 |
+      | Using        | minitest                   |       5.8.4 |            |               |      |       |                 |                 |     |    |                 |
+      | Using        | thread_safe                |       0.3.5 |            |               |      |       |                 |                 |     |    |                 |
+      | Using        | builder                    |       3.2.2 |            |               |      |       |                 |                 |     |    |                 |
+      | Using        | erubis                     |       2.7.0 |            |               |      |       |                 |                 |     |    |                 |
+      | Using        | mini_portile2              |       2.0.0 |            |               |      |       |                 |                 |     |    |                 |
+      | Using        | rack                       |       1.6.4 |            |               |      |       |                 |                 |     |    |                 |
+      | Using        | mime-types-data            | 3.2016.0221 |            |               |      |       |                 |                 |     |    |                 |
+      | Using        | arel                       |       6.0.3 |            |               |      |       |                 |                 |     |    |                 |
+      | Using        | debug_inspector            |       0.0.2 |            |               |      |       |                 |                 |     |    |                 |
+      | Using        | byebug                     |       8.2.4 |            |               |      |       |                 |                 |     |    |                 |
+      | Using        | coffee-script-source       |      1.10.0 |            |               |      |       |                 |                 |     |    |                 |
+      | Using        | execjs                     |       2.6.0 |            |               |      |       |                 |                 |     |    |                 |
+      | Using        | thor                       |      0.19.1 |            |               |      |       |                 |                 |     |    |                 |
+      | Using        | concurrent-ruby            |       1.0.1 |            |               |      |       |                 |                 |     |    |                 |
+      | Using        | multi_json                 |      1.11.2 |            |               |      |       |                 |                 |     |    |                 |
+      | Using        | pg                         |      0.18.4 |            |               |      |       |                 |                 |     |    |                 |
+      | Using        | bundler                    |      1.11.2 |            |               |      |       |                 |                 |     |    |                 |
+      | Using        | sass                       |      3.4.22 |            |               |      |       |                 |                 |     |    |                 |
+      | Using        | tilt                       |       2.0.2 |            |               |      |       |                 |                 |     |    |                 |
+      | Using        | spring                     |       1.7.1 |            |               |      |       |                 |                 |     |    |                 |
+      | Using        | rdoc                       |       4.2.2 |            |               |      |       |                 |                 |     |    |                 |
+      | Using        | tzinfo                     |       1.2.2 |            |               |      |       |                 |                 |     |    |                 |
+      | Using        | nokogiri                   |     1.6.7.2 |            |               |      |       |                 |                 |     |    |                 |
+      | Using        | rack-test                  |       0.6.3 |            |               |      |       |                 |                 |     |    |                 |
+      | Using        | mime-types                 |         3.0 |            |               |      |       |                 |                 |     |    |                 |
+      | Using        | binding_of_caller          |       0.7.2 |            |               |      |       |                 |                 |     |    |                 |
+      | Using        | coffee-script              |       2.4.1 |            |               |      |       |                 |                 |     |    |                 |
+      | Using        | uglifier                   |       3.0.0 |            |               |      |       |                 |                 |     |    |                 |
+      | Using        | sprockets                  |       3.6.0 |            |               |      |       |                 |                 |     |    |                 |
+      | Using        | sdoc                       |       0.4.1 |            |               |      |       |                 |                 |     |    |                 |
+      | Using        | activesupport              |       4.2.6 |            |               |      |       |                 |                 |     |    |                 |
+      | Using        | loofah                     |       2.0.3 |            |               |      |       |                 |                 |     |    |                 |
+      | Using        | mail                       |       2.6.4 |            |               |      |       |                 |                 |     |    |                 |
+      | Using        | rails-deprecated_sanitizer |       1.0.3 |            |               |      |       |                 |                 |     |    |                 |
+      | Using        | globalid                   |       0.3.6 |            |               |      |       |                 |                 |     |    |                 |
+      | Using        | activemodel                |       4.2.6 |            |               |      |       |                 |                 |     |    |                 |
+      | Using        | jbuilder                   |       2.4.1 |            |               |      |       |                 |                 |     |    |                 |
+      | Using        | rails-html-sanitizer       |       1.0.3 |            |               |      |       |                 |                 |     |    |                 |
+      | Using        | rails-dom-testing          |       1.0.7 |            |               |      |       |                 |                 |     |    |                 |
+      | Using        | activejob                  |       4.2.6 |            |               |      |       |                 |                 |     |    |                 |
+      | Using        | activerecord               |       4.2.6 |            |               |      |       |                 |                 |     |    |                 |
+      | Using        | actionview                 |       4.2.6 |            |               |      |       |                 |                 |     |    |                 |
+      | Using        | actionpack                 |       4.2.6 |            |               |      |       |                 |                 |     |    |                 |
+      | Using        | actionmailer               |       4.2.6 |            |               |      |       |                 |                 |     |    |                 |
+      | Using        | railties                   |       4.2.6 |            |               |      |       |                 |                 |     |    |                 |
+      | Using        | sprockets-rails            |       3.0.4 |            |               |      |       |                 |                 |     |    |                 |
+      | Using        | coffee-rails               |       4.1.1 |            |               |      |       |                 |                 |     |    |                 |
+      | Using        | jquery-rails               |       4.1.1 |            |               |      |       |                 |                 |     |    |                 |
+      | Using        | rails                      |       4.2.6 |            |               |      |       |                 |                 |     |    |                 |
+      | Using        | sass-rails                 |       5.0.4 |            |               |      |       |                 |                 |     |    |                 |
+      | Using        | web-console                |       2.3.0 |            |               |      |       |                 |                 |     |    |                 |
+      | Using        | turbolinks                 |       2.5.3 |            |               |      |       |                 |                 |     |    |                 |
+      | [32mBundle | complete!                  |          12 | Gemfile    | dependencies, | 55   | gems  | now             | installed.[0m |     |    |                 |
+      | [32mGems   | in                         |         the | group      | production    | were | not   | installed.[0m |                 |     |    |                 |
+      | [32mUse    | `bundle                    |        show | [gemname]` | to            | see  | where | a               | bundled         | gem | is | installed.[0m |
+
+*****  rake db:setup
+       #+BEGIN_SRC   sh :dir /ssh:MilaVM:~/mila/
+       bundle exec rake db:setup
+       bundle exec rake db:migrate
+       #+END_SRC
+
+       #+RESULTS:
+
+      
+
+
 * Wrong Turns
+
 *** Rbenv later? 
     Because of this [[https://www.ixsystems.com/blog/freebsd-on-rails/][iX Systems Article]] I decided on rbenv to install
     ruby.
