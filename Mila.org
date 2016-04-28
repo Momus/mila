@@ -13,6 +13,7 @@
   with just a few keystrokes. For me, this idea went from hopeful
   Google term to something approaching reality when I stumbled across
   [[http://www.howardism.org/Technical/Emacs/literate-devops.html][this blog post]].
+
 *** Preliminary steps:
     1. Create project directory, create this file inside of it.
     2. Create a Vagrantfile in this directory for dev/testing
@@ -95,6 +96,7 @@
 
     #+RESULTS:
     | src component not installed                      | skipped |
+
 
 * FreeBSD Rails server general system setup
 
@@ -285,9 +287,6 @@
    https://www.phusionpassenger.com
 
 
-
-
-
 * Mila.cat Rails-Elm app
 
 *** Install rails gem
@@ -307,6 +306,7 @@
 
 
 ***  Initialize application
+    - Note taken on [2016-04-26 Tue 18:49]
      #+BEGIN_SRC sh :dir /ssh:MilaVM:~
        rails new mila --database=postgresql 
      #+END_SRC
@@ -557,8 +557,115 @@
 
        #+RESULTS:
 
-      
+***** starting server
+      #+BEGIN_SRC    sh :dir /ssh:MilaVM:~/mila/
+       bundle exec rails s -b 0.0.0.0      
+      #+END_SRC
 
+      #+RESULTS:
+
+      
+* Rails
+
+*** Test
+
+***** Controller
+
+******* Static Pages
+        #+NAME: static_pages_controller_test.rb
+        #+BEGIN_SRC ruby  :tangle /ssh:MilaVM:~/mila/test/controllers/static_pages_controller_test.rb
+          require 'test_helper'
+
+          class StaticPagesControllerTest < ActionController::TestCase
+            test "should get home" do
+              get :home
+              assert_response :success
+            end
+
+            test "should get help" do
+              get :help
+              assert_response :success
+            end
+
+             test "should get about" do
+               get :about
+               assert_response :success
+             end
+
+          end 
+
+        #+END_SRC
+
+******* Running Tests
+        - just this controller's test
+          #+BEGIN_SRC sh :results output  :dir /ssh:MilaVM:~/mila/
+            bundle exec rake test test/controllers/static_pages_controller_test.rb
+          #+END_SRC
+
+          #+RESULTS:
+
+
+         - Initial results:
+          | Finished in | 0.484936s    | 4.1243 runs/s  | 4.1243 assertions/s  |         |
+          | 2 runs      | 2 assertions | 0 failures     | 0  errors            | 0 skips |
+
+*** Config
+
+***** Routes
+      - routes.rb
+        #+BEGIN_SRC ruby :tangle /ssh:MilaVM:/home/vagrant/mila/config/routes.rb
+          Rails.application.routes.draw do
+
+            # Priority is based on order of creation: first created -> highest priority.
+            # See how all your routes lay out with "rake routes".
+
+            # Root of your site routed with "root"
+            root 'static_pages#home'
+
+            ## Static pages controller serves static pages.
+
+            get '/help' => 'static_pages#help'
+            get '/about' => 'static_pages#about'
+
+          end
+        #+END_SRC
+
+*** Controllers
+
+***** StaticPage Controller
+      - Generation
+        #+BEGIN_SRC  sh :dir /ssh:MilaVM:~/mila/
+          bundle exec rails generate controller StaticPages home help
+        #+END_SRC
+
+        #+RESULTS:
+        | create | app/controllers/static_pages_controller.rb       |                     |
+        | route  | get                                              | 'static_pages/help' |
+        | route  | get                                              | 'static_pages/home' |
+        | invoke | erb                                              |                     |
+        | create | app/views/static_pages                           |                     |
+        | create | app/views/static_pages/home.html.erb             |                     |
+        | create | app/views/static_pages/help.html.erb             |                     |
+        | invoke | test_unit                                        |                     |
+        | create | test/controllers/static_pages_controller_test.rb |                     |
+        | invoke | helper                                           |                     |
+        | create | app/helpers/static_pages_helper.rb               |                     |
+        | invoke | test_unit                                        |                     |
+        | invoke | assets                                           |                     |
+        | invoke | coffee                                           |                     |
+        | create | app/assets/javascripts/static_pages.coffee       |                     |
+        | invoke | scss                                             |                     |
+        | create | app/assets/stylesheets/static_pages.scss         |                     |
+
+******* Next thing to be done.
+
+***** User Controller
+
+
+*** Models
+
+
+* Elm
 
 * Wrong Turns
 

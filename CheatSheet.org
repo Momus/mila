@@ -1,0 +1,10 @@
+* Literate dev ops
+*** Generate
+***** org-babel-tangel C-c C-v t
+
+*** TODO Resutls from tests don't show up in #+RESULTS              :problem:
+
+    - research :: look at org manual. Likely candiates
+      - idea 1 :: implementation
+    - solution :: how I fixed it.
+
