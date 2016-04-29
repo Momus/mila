@@ -603,11 +603,16 @@
           #+END_SRC
 
           #+RESULTS:
+          : Run options: --seed 36006
+          : 
+          : # Running:
+          : 
+          : ...
+          : 
+          : Finished in 0.491675s, 6.1016 runs/s, 6.1016 assertions/s.
+          : 
+          : 3 runs, 3 assertions, 0 failures, 0 errors, 0 skips
 
-
-         - Initial results:
-          | Finished in | 0.484936s    | 4.1243 runs/s  | 4.1243 assertions/s  |         |
-          | 2 runs      | 2 assertions | 0 failures     | 0  errors            | 0 skips |
 
 *** Config
 
@@ -657,7 +662,22 @@
         | invoke | scss                                             |                     |
         | create | app/assets/stylesheets/static_pages.scss         |                     |
 
-******* Next thing to be done.
+******* Source
+        #+BEGIN_SRC ruby :tangle /ssh:MilaVM:~/mila/app/controllers/static_pages_controller.rb
+          class StaticPagesController < ApplicationController
+            def home
+            end
+
+            def help
+            end
+
+            def about
+            end
+          end
+
+        #+END_SRC
+
+******* 
 
 ***** User Controller
 
