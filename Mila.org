@@ -688,7 +688,34 @@
 
 * Elm
 
+*** Initializatoin
+    1. Create local dir, Mila.elm
+       Might as well check into repo.
+    2. 
 
+*** Mila.elm
+    - Source
+      #+BEGIN_SRC elm :tangle Mila.elm/Mila.elm
+        import String exposing (..)
+        import Html exposing (..)
+
+        main =
+          "Mila!"
+            |> String.toUpper
+            |> String.repeat 3
+            |> text
+               
+
+      #+END_SRC
+    - Compilation
+      #+BEGIN_SRC sh :results output :dir Mila.elm
+        ##REM: elm package install evancz/elm-html
+        elm make Mila.elm --output mila.js
+      #+END_SRC
+
+      #+RESULTS:
+      : Success! Compiled 6 modules.
+      : Successfully generated mila.js
 
 *** 
 
