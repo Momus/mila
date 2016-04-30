@@ -25,6 +25,7 @@
 *** TODO [0/2] Modify [[https://github.com/wunki/vagrant-freebsd/blob/master/Vagrantfile][wunki's]] Vagrantfile, to suit our needs.:
 
      - [ ] Resize the hard disk. Default is ridiculously small.
+       The virtual disk dosen't seem to grow. [[http://tomasz.korwel.net/2014/01/03/growing-zfs-pool/][Growing ZFS Pool]] may help
 
      - [ ] Out of the box, wunki uses Virtual box. Change this to libvirt for a speedup.
      #+BEGIN_SRC ruby :tangle Vagrantfile
@@ -687,7 +688,52 @@
 
 * Elm
 
+
+
+*** 
+
+
 * Wrong Turns
+
+
+*** Elm  [[https://www.npmjs.com/package/elm][Installation]] -- on development only.
+    NPM was already installed when installing the Rails gem. However this:
+    #+BEGIN_SRC sh :results output :dir /ssh:MilaVM:~/mila/ 
+    sudo npm install -g elm
+    #+END_SRC
+    does not work because there are currently ([2016-04-30 Sat]) no
+    FreeBSD binaries in npm. So we have to do it the [[https://github.com/elm-lang/elm-platform][old fasioned]] way:
+     1. Get Haskell Working
+        #+BEGIN_SRC sh :results output :dir /ssh:MilaVM:~/mila/src
+          sudo pkg install --yes lang/ghc
+          sudo pkg install --yes hs-cabal-install
+
+        #+END_SRC
+
+        1. New packages to be INSTALLED:
+           ghc: 7.10.2
+           libiconv: 1.14_9
+           gmp: 5.1.3_3
+           gcc: 4.8.5_2
+           mpc: 1.0.3
+           mpfr: 3.1.3_1
+           binutils: 2.25.1_1,1
+           gcc-ecj: 4.5
+
+           Message from gcc-4.8.5_2:
+           To ensure binaries built with this toolchain find appropriate versions
+           of the necessary run-time libraries, you may want to link using
+     
+           -Wl,-rpath=/usr/local/lib/gcc48
+      
+            For ports leveraging USE_GCC, USES=compiler, or USES=fortran this happens
+            transparently.
+
+     2. Actually Build Elm Things
+        For some reason, does not build binaries on FreeBSD.
+
+
+
 
 *** Rbenv later? 
     Because of this [[https://www.ixsystems.com/blog/freebsd-on-rails/][iX Systems Article]] I decided on rbenv to install
