@@ -9995,11 +9995,11 @@ Elm.Html.make = function (_elm) {
                              ,menuitem: menuitem
                              ,menu: menu};
 };
-Elm.Main = Elm.Main || {};
-Elm.Main.make = function (_elm) {
+Elm.Mila = Elm.Mila || {};
+Elm.Mila.make = function (_elm) {
    "use strict";
-   _elm.Main = _elm.Main || {};
-   if (_elm.Main.values) return _elm.Main.values;
+   _elm.Mila = _elm.Mila || {};
+   if (_elm.Mila.values) return _elm.Mila.values;
    var _U = Elm.Native.Utils.make(_elm),
    $Basics = Elm.Basics.make(_elm),
    $Debug = Elm.Debug.make(_elm),
@@ -10011,5 +10011,5 @@ Elm.Main.make = function (_elm) {
    $String = Elm.String.make(_elm);
    var _op = {};
    var main = $Html.text(A2($String.repeat,3,$String.toUpper("Mila!")));
-   return _elm.Main.values = {_op: _op,main: main};
+   return _elm.Mila.values = {_op: _op,main: main};
 };

@@ -568,6 +568,203 @@
       
 * Rails
 
+*** Root Files
+
+***** Gemfile
+      - Source
+              #+BEGIN_SRC ruby :tangle /ssh:MilaVM:mila/Gemfile
+                source 'https://rubygems.org'
+
+
+                gem 'rails', '4.2.6'
+                gem 'pg', '~> 0.15'
+                # Use SCSS for stylesheets
+                gem 'sass-rails', '~> 5.0'
+                # Use Uglifier as compressor for JavaScript assets
+                gem 'uglifier', '>= 1.3.0'
+                # Use CoffeeScript for .coffee assets and views
+                gem 'coffee-rails', '~> 4.1.0'
+                # See https://github.com/rails/execjs#readme for more supported runtimes
+                # gem 'therubyracer', platforms: :ruby
+
+                # Use jquery as the JavaScript library
+                gem 'jquery-rails'
+                # Turbolinks makes following links in your web application faster. 
+                # Read more: https://github.com/rails/turbolinks
+                gem 'turbolinks'
+                # Build JSON APIs with ease. Read more: https://github.com/rails/jbuilder
+                gem 'jbuilder', '~> 2.0'
+                # bundle exec rake doc:rails generates the API under doc/api.
+                gem 'sdoc', '~> 0.4.0', group: :doc
+
+                # Use ActiveModel has_secure_password
+                gem 'bcrypt', '~> 3.1.7'
+
+                # Use Unicorn as the app server
+                # gem 'unicorn'
+
+                # Use Capistrano for deployment
+                gem 'capistrano-rails', group: :development
+
+                group :development, :test do
+                  # Call 'byebug' anywhere in the code to stop execution and get a debugger console
+                  gem 'byebug'
+                end
+
+                group :development do
+                  # Access an IRB console on exception pages or by using <%= console %> in views
+                  gem 'web-console', '~> 2.0'
+
+                  # Spring speeds up development by keeping your application running in the background.
+                  # Read more: https://github.com/rails/spring
+                  gem 'spring'
+                end
+
+
+              #+END_SRC
+
+
+      - Bundle update
+        #+BEGIN_SRC sh  :results output :dir /ssh:MilaVM:~/mila/
+        bundle update
+        #+END_SRC
+
+        #+RESULTS:
+        #+begin_example
+        Fetching gem metadata from https://rubygems.org/...........
+        Fetching version metadata from https://rubygems.org/...
+        Fetching dependency metadata from https://rubygems.org/..
+        Resolving dependencies.........................
+        Using rake 11.1.2
+        Using i18n 0.7.0
+        Using json 1.8.3
+        Using minitest 5.8.4
+        Using thread_safe 0.3.5
+        Using builder 3.2.2
+        Using erubis 2.7.0
+        Using mini_portile2 2.0.0
+        Using rack 1.6.4
+        Using mime-types-data 3.2016.0221
+        Using arel 6.0.3
+        Using net-ssh 3.1.1
+        Using bcrypt 3.1.11
+        Using debug_inspector 0.0.2
+        Using bundler 1.11.2
+        [32mInstalling byebug 8.2.5 (was 8.2.4) with native extensions[0m
+        Using capistrano-harrow 0.4.0
+        Using coffee-script-source 1.10.0
+        Using execjs 2.6.0
+        Using thor 0.19.1
+        Using concurrent-ruby 1.0.1
+        [32mInstalling multi_json 1.11.3 (was 1.11.2)[0m
+        Using pg 0.18.4
+        Using spring 1.7.1
+        Using rdoc 4.2.2
+        Using tzinfo 1.2.2
+        Using nokogiri 1.6.7.2
+        Using rack-test 0.6.3
+        Using mime-types 3.0
+        Using net-scp 1.2.1
+        Using binding_of_caller 0.7.2
+        Using coffee-script 2.4.1
+        Using uglifier 3.0.0
+        Using sprockets 3.6.0
+        Using sdoc 0.4.1
+        Using activesupport 4.2.6
+        Using loofah 2.0.3
+        Using mail 2.6.4
+        Using sshkit 1.10.0
+        Using rails-deprecated_sanitizer 1.0.3
+        Using globalid 0.3.6
+        Using activemodel 4.2.6
+        Using jbuilder 2.4.1
+        Using rails-html-sanitizer 1.0.3
+        Using airbrussh 1.0.1
+        Using rails-dom-testing 1.0.7
+        Using activejob 4.2.6
+        Using activerecord 4.2.6
+        Using capistrano 3.5.0
+        Using actionview 4.2.6
+        Using capistrano-bundler 1.1.4
+        Using actionpack 4.2.6
+        Using capistrano-rails 1.1.6
+        Using actionmailer 4.2.6
+        Using railties 4.2.6
+        Using sprockets-rails 3.0.4
+        Using coffee-rails 4.1.1
+        Using rails 4.2.6
+        Using web-console 2.3.0
+        Using turbolinks 2.5.3
+        [32mBundle updated![0m
+        [32mGems in the group production were not installed.[0m
+#+end_example
+
+*** app
+
+
+***** Assets
+
+******* javascripts
+
+********* application.js
+          - source
+            #+BEGIN_SRC javascript :tangle /ssh:MilaVM:mila/app/assets/javascripts/application.js
+              // This is a manifest file that'll be compiled into application.js, which will include all the files
+              // listed below.
+              //
+              // Any JavaScript/Coffee file within this directory, lib/assets/javascripts, vendor/assets/javascripts,
+              // or any plugin's vendor/assets/javascripts directory can be referenced here using a relative path.
+              //
+              // It's not advisable to add code directly here, but if you do, it'll appear at the bottom of the
+              // compiled file.
+              //
+              // Read Sprockets README (https://github.com/rails/sprockets#sprockets-directives) for details
+              // about supported directives.
+
+              //= require mila
+              //= require turbolinks
+              //= require_tree .
+            #+END_SRC
+
+********* mila.js
+          - source
+            #+BEGIN_SRC sh :results output :dir Mila.elm
+              scp ./mila.js MilaVM:~/mila/app/assets/javascripts/mila.js
+              ssh MilaVM 'ls -lh ~/mila/app/assets/javascripts/mila.js'
+            #+END_SRC
+
+            #+RESULTS:
+            : -rw-r--r--  1 vagrant  vagrant   269K May  1 01:09 /home/vagrant/mila/app/assets/javascripts/mila.js
+
+
+***** views
+
+******* layouts
+
+********* application.html.erb
+          - source
+            #+BEGIN_SRC html :tangle /ssh:MilaVM:/home/vagrant/mila/app/views/layouts/application.html.erb
+              <!DOCTYPE html>
+              <html>
+                <head>
+                  <title>Mila</title>
+                  <%= stylesheet_link_tag    'application', media: 'all', 'data-turbolinks-track' => true %>
+                  <%= javascript_include_tag 'application', 'data-turbolinks-track' => true %>
+                  <%= csrf_meta_tags %>
+                  
+                </head>
+                <body>
+                  <script type="text/javascript">
+                    Elm.fullscreen(Elm.Mila);
+                  </script>
+                  <%= yield %>
+                  
+                </body>
+              </html>
+
+            #+END_SRC
+
+********* 
 *** Test
 
 ***** Controller
@@ -636,6 +833,59 @@
           end
         #+END_SRC
 
+***** environments
+      - development
+        #+BEGIN_SRC ruby :tangle /ssh:MilaVM:mila/config/environments/development.rb
+          Rails.application.configure do
+            # Settings specified here will take precedence over those in config/application.rb.
+
+            #Allow rails console to be accessed by non-Internet routed networks
+            config.web_console.whitelisted_ips = '192.168.0.0/16', '10.0.0.0/8', '172.16.0.0/12'
+            
+            # In the development environment your application's code is reloaded on
+            # every request. This slows down response time but is perfect for development
+            # since you don't have to restart the web server when you make code changes.
+            config.cache_classes = false
+
+            # Do not eager load code on boot.
+            config.eager_load = false
+
+            # Show full error reports and disable caching.
+            config.consider_all_requests_local       = true
+            config.action_controller.perform_caching = false
+
+            # Don't care if the mailer can't send.
+            config.action_mailer.raise_delivery_errors = false
+
+            # Print deprecation notices to the Rails logger.
+            config.active_support.deprecation = :log
+
+            # Raise an error on page load if there are pending migrations.
+            config.active_record.migration_error = :page_load
+
+            # Debug mode disables concatenation and preprocessing of assets.
+            # This option may cause significant delays in view rendering with a large
+            # number of complex assets.
+            config.assets.debug = true
+
+            # Asset digests allow you to set far-future HTTP expiration dates on all assets,
+            # yet still be able to expire them through the digest params.
+            config.assets.digest = true
+
+            # Adds additional error checking when serving assets at runtime.
+            # Checks for improperly declared sprockets dependencies.
+            # Raises helpful error messages.
+            config.assets.raise_runtime_errors = true
+
+            # Raises error for missing translations
+            # config.action_view.raise_on_missing_translations = true
+          end
+
+        #+END_SRC
+
+*** 
+
+
 *** Controllers
 
 ***** StaticPage Controller
@@ -696,15 +946,16 @@
 *** Mila.elm
     - Source
       #+BEGIN_SRC elm :tangle Mila.elm/Mila.elm
+        module Mila (..) where
+
         import String exposing (..)
         import Html exposing (..)
 
         main =
-          "Mila!"
+          "Mila! "
             |> String.toUpper
             |> String.repeat 3
             |> text
-               
 
       #+END_SRC
     - Compilation
@@ -714,8 +965,9 @@
       #+END_SRC
 
       #+RESULTS:
-      : Success! Compiled 6 modules.
+      : Success! Compiled 0 modules.
       : Successfully generated mila.js
+
 
 *** 
 
