@@ -699,8 +699,8 @@
         [32mGems in the group production were not installed.[0m
 #+end_example
 
-*** app
 
+*** app
 
 ***** Assets
 
@@ -721,20 +721,11 @@
               // Read Sprockets README (https://github.com/rails/sprockets#sprockets-directives) for details
               // about supported directives.
 
-              //= require mila
+
               //= require turbolinks
               //= require_tree .
             #+END_SRC
 
-********* mila.js
-          - source
-            #+BEGIN_SRC sh :results output :dir Mila.elm
-              scp ./mila.js MilaVM:~/mila/app/assets/javascripts/mila.js
-              ssh MilaVM 'ls -lh ~/mila/app/assets/javascripts/mila.js'
-            #+END_SRC
-
-            #+RESULTS:
-            : -rw-r--r--  1 vagrant  vagrant   269K May  1 01:09 /home/vagrant/mila/app/assets/javascripts/mila.js
 
 
 ***** views
@@ -751,12 +742,9 @@
                   <%= stylesheet_link_tag    'application', media: 'all', 'data-turbolinks-track' => true %>
                   <%= javascript_include_tag 'application', 'data-turbolinks-track' => true %>
                   <%= csrf_meta_tags %>
-                  
                 </head>
                 <body>
-                  <script type="text/javascript">
-                    Elm.fullscreen(Elm.Mila);
-                  </script>
+
                   <%= yield %>
                   
                 </body>
@@ -764,7 +752,19 @@
 
             #+END_SRC
 
-********* 
+********* TODO home.html.erb
+          Make a more "custom" Elm compiplation target that works better with application.html.erb
+          - copied from Mila.elm/index.html
+            #+BEGIN_SRC sh :results output :dir Mila.elm
+              elm make Mila.elm --warn --output home.html
+              scp home.html MilaVM:mila/app/views/static_pages/home.html.erb
+            #+END_SRC
+
+            #+RESULTS:
+            : Success! Compiled 1 modules.
+            : Successfully generated home.html
+
+
 *** Test
 
 ***** Controller
@@ -948,14 +948,35 @@
       #+BEGIN_SRC elm :tangle Mila.elm/Mila.elm
         module Mila (..) where
 
-        import String exposing (..)
         import Html exposing (..)
+        import Html.Attributes exposing (..)
+
+        import String
+
+
+        title message times =
+          message
+            |> String.toUpper
+            |> String.repeat times
+            |> text
+
+        pageHeader =
+          h1 [ ] [ title   "¡Mila! " 3 ]
+
+
+        pageFooter =
+          h3 [ ]
+            [ text "pròximament"
+            ]
+
+        view =
+          div [ id "container" ]
+              [ pageHeader, pageFooter ]
 
         main =
-          "Mila! "
-            |> String.toUpper
-            |> String.repeat 3
-            |> text
+          view        
+              
+               
 
       #+END_SRC
     - Compilation
