@@ -813,7 +813,6 @@
 
 
 *** Config
-
 ***** Routes
       - routes.rb
         #+BEGIN_SRC ruby :tangle /ssh:MilaVM:/home/vagrant/mila/config/routes.rb
@@ -883,8 +882,7 @@
 
         #+END_SRC
 
-*** 
-
+    
 
 *** Controllers
 
@@ -943,6 +941,7 @@
        Might as well check into repo.
     2. 
        
+
 *** Mila.elm
     - Source
       #+BEGIN_SRC elm :tangle Mila.elm/Mila.elm
@@ -990,7 +989,6 @@
       : Successfully generated mila.js
 
 
-*** 
 
 
 * Digital Ocean Deploy
@@ -1014,6 +1012,8 @@
         : Capified
 
       - 
+
+
 ***** config/deploy.rb
       #+BEGIN_SRC ruby :tangle /ssh:MilaVM:mila/config/deploy.rb
               # config valid only for current version of Capistrano
@@ -1067,6 +1067,7 @@
         end
 
       #+END_SRC
+
 
 
 * Wrong Turns
