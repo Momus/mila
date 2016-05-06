@@ -1876,6 +1876,111 @@
 
 *** Capistrano
 
+
+***** Place Mila into Git
+
+******* Generate keys for development Vagrant box:
+        From [[http://unix.stackexchange.com/a/135090/23183][some guy]] comes this trick:
+        #+BEGIN_SRC sh :results output :dir /ssh:MilaVM:~/
+        cat /dev/zero | ssh-keygen -t dsa -q  -N ""
+        #+END_SRC
+
+******* TODO Add key to Bitbucket
+        Is there some way to script this? Right now, go to
+        [[https://bitbucket.org/account/user/MomusLLC/ssh-keys//][Bitbucket SSH key admin]] and add the key.
+********* 
+
+******* Initialize git repository
+        Git needs a user set to function.
+        #+BEGIN_SRC sh :results output :dir /ssh:MilaVM:~/mila/
+          git init
+          git remote add origin git@bitbucket.org:MomusLLC/mila.git
+          git config --global user.email "dmitri@momus.net"
+          git config --global user.name "Dmitri G. Brengauz"
+          git add .
+          git commit -m "initial commit"
+          git push -u origin master
+        #+END_SRC
+
+        #+RESULTS:
+        #+begin_example
+        [master (root-commit) 73fd1e8] initial commit
+         72 files changed, 15095 insertions(+)
+         create mode 100644 .gitignore
+         create mode 100644 Capfile
+         create mode 100644 Gemfile
+         create mode 100644 Gemfile.lock
+         create mode 100644 README.rdoc
+         create mode 100644 Rakefile
+         create mode 100644 app/assets/images/.keep
+         create mode 100644 app/assets/javascripts/application.js
+         create mode 100644 app/assets/javascripts/static_pages.coffee
+         create mode 100644 app/assets/stylesheets/application.css
+         create mode 100644 app/assets/stylesheets/static_pages.scss
+         create mode 100644 app/controllers/application_controller.rb
+         create mode 100644 app/controllers/concerns/.keep
+         create mode 100644 app/controllers/static_pages_controller.rb
+         create mode 100644 app/helpers/application_helper.rb
+         create mode 100644 app/helpers/static_pages_helper.rb
+         create mode 100644 app/mailers/.keep
+         create mode 100644 app/models/.keep
+         create mode 100644 app/models/concerns/.keep
+         create mode 100644 app/views/layouts/application.html.erb
+         create mode 100644 app/views/static_pages/about.html.erb
+         create mode 100644 app/views/static_pages/help.html.erb
+         create mode 100644 app/views/static_pages/home.html.erb
+         create mode 100755 bin/bundle
+         create mode 100755 bin/rails
+         create mode 100755 bin/rake
+         create mode 100755 bin/setup
+         create mode 100755 bin/spring
+         create mode 100644 config.ru
+         create mode 100644 config/application.rb
+         create mode 100644 config/boot.rb
+         create mode 100644 config/database.yml
+         create mode 100644 config/deploy.rb
+         create mode 100644 config/deploy/production.rb
+         create mode 100644 config/deploy/staging.rb
+         create mode 100644 config/environment.rb
+         create mode 100644 config/environments/development.rb
+         create mode 100644 config/environments/production.rb
+         create mode 100644 config/environments/test.rb
+         create mode 100644 config/initializers/assets.rb
+         create mode 100644 config/initializers/backtrace_silencers.rb
+         create mode 100644 config/initializers/cookies_serializer.rb
+         create mode 100644 config/initializers/filter_parameter_logging.rb
+         create mode 100644 config/initializers/inflections.rb
+         create mode 100644 config/initializers/mime_types.rb
+         create mode 100644 config/initializers/session_store.rb
+         create mode 100644 config/initializers/wrap_parameters.rb
+         create mode 100644 config/locales/en.yml
+         create mode 100644 config/routes.rb
+         create mode 100644 config/secrets.yml
+         create mode 100644 db/schema.rb
+         create mode 100644 db/seeds.rb
+         create mode 100644 lib/assets/.keep
+         create mode 100644 lib/tasks/.keep
+         create mode 100644 log/.keep
+         create mode 100644 npm-debug.log
+         create mode 100644 public/404.html
+         create mode 100644 public/422.html
+         create mode 100644 public/500.html
+         create mode 100644 public/favicon.ico
+         create mode 100644 public/robots.txt
+         create mode 100644 test/controllers/#_assh_bMilaVM_b_ahome_avagrant_amila_atest_acontrollers_astatic__pages__controller__test.rb#
+         create mode 100644 test/controllers/.keep
+         create mode 100644 test/controllers/static_pages_controller_test.rb
+         create mode 100644 test/fixtures/.keep
+         create mode 100644 test/helpers/.keep
+         create mode 100644 test/integration/.keep
+         create mode 100644 test/mailers/.keep
+         create mode 100644 test/models/.keep
+         create mode 100644 test/test_helper.rb
+         create mode 100644 vendor/assets/javascripts/.keep
+         create mode 100644 vendor/assets/stylesheets/.keep
+        Branch master set up to track remote branch master from origin.
+#+end_example
+
 ***** install Capistrano files
       - initial creation
         #+BEGIN_SRC sh :results output :dir /ssh:MilaVM:~/mila/
@@ -1885,7 +1990,7 @@
       - new files:
         config/deploy.rb
         config/deploy/staging.rb
-        config/deploy/production.rb already exists
+        config/deploy/production.rb
         mkdir -p lib/capistrano/tasks
         Capfile
 
@@ -1899,13 +2004,13 @@
         lock '3.5.0'
 
         set :application, 'mila'
-        set :repo_url, 'git@github.com:Momus/mila.git'
+        set :repo_url, 'git@bitbucket.org:MomusLLC/mila.git'
 
         # Default branch is :master
         # ask :branch, `git rev-parse --abbrev-ref HEAD`.chomp
 
         # Default deploy_to directory is /var/www/my_app_name
-        # set :deploy_to, '/var/www/my_app_name'
+        set :deploy_to, '/var/www/mila'
 
         # Default value for :scm is :git
         # set :scm, :git
@@ -1944,6 +2049,72 @@
           end
 
         end
+
+      #+END_SRC
+
+***** config/deploy/production.rb
+      #+BEGIN_SRC ruby :tangle /ssh:MilaVM:mila/config/deploy/production.rb
+        # server-based syntax
+        # ======================
+        # Defines a single server with a list of roles and multiple properties.
+        # You can define all roles on a single server, or split them:
+
+        # server 'example.com', user: 'deploy', roles: %w{app db web}, my_property: :my_value
+        # server 'example.com', user: 'deploy', roles: %w{app web}, other_property: :other_value
+        # server 'db.example.com', user: 'deploy', roles: %w{db}
+
+
+
+        # role-based syntax
+        # ==================
+
+        # Defines a role with one or multiple servers. The primary server in each
+        # group is considered to be the first unless any  hosts have the primary
+        # property set. Specify the username and a domain or IP for the server.
+        # Don't use `:all`, it's a meta role.
+
+        # role :app, %w{deploy@example.com}, my_property: :my_value
+        # role :web, %w{user1@primary.com user2@additional.com}, other_property: :other_value
+        # role :db,  %w{deploy@example.com}
+
+
+
+        # Configuration
+        # =============
+        # You can set any configuration variable like in config/deploy.rb
+        # These variables are then only loaded and set in this stage.
+        # For available Capistrano configuration variables see the documentation page.
+        # http://capistranorb.com/documentation/getting-started/configuration/
+        # Feel free to add new variables to customise your setup.
+
+
+
+        # Custom SSH Options
+        # ==================
+        # You may pass any option but keep in mind that net/ssh understands a
+        # limited set of options, consult the Net::SSH documentation.
+        # http://net-ssh.github.io/net-ssh/classes/Net/SSH.html#method-c-start
+        #
+        # Global options
+        # --------------
+        #  set :ssh_options, {
+        #    keys: %w(/home/rlisowski/.ssh/id_rsa),
+        #    forward_agent: false,
+        #    auth_methods: %w(password)
+        #  }
+        #
+        # The server-based syntax can be used to override options:
+        # ------------------------------------
+        # server 'example.com',
+        #   user: 'user_name',
+        #   roles: %w{web app},
+        #   ssh_options: {
+        #     user: 'user_name', # overrides user setting above
+        #     keys: %w(/home/user_name/.ssh/id_rsa),
+        #     forward_agent: false,
+        #     auth_methods: %w(publickey password)
+        #     # password: 'please use keys'
+        #   }
 
       #+END_SRC
 
