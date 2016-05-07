@@ -211,20 +211,17 @@
             | /usr/local/bin/postgres -D   /usr/local/pgsql/data                        |
             | or                                                                        |
             | /usr/local/bin/pg_ctl   -D   /usr/local/pgsql/data   -l   logfile   start |
-
-
-
-      - /usr/local/pgsql/data/postgresql.conf
-        set listen_address to 'localhost'
-      - use password hash authentication for all hosts and users
-        /usr/local/pgsql/data/pg_hba.conf
-      - Start DBMS for first time and add a new super-user
-        (with database and role creation rights
-        - /usr/local/etc/rc.d/postgresql start
-        - sudo su pgsql
-        - createuser -sdrP /username/
-        - Enter password for new role:
-        - Enter it again:
+    - /usr/local/pgsql/data/postgresql.conf
+      set listen_address to 'localhost'
+    - use password hash authentication for all hosts and users
+      /usr/local/pgsql/data/pg_hba.conf
+    - Start DBMS for first time and add a new super-user
+      (with database and role creation rights
+      - /usr/local/etc/rc.d/postgresql start
+      - sudo su pgsql
+      - createuser -sdrP /username/
+      - Enter password for new role:
+      - Enter it again:
 
 
 
@@ -245,7 +242,6 @@
      - Create a user for the app:
          - sudo  su - pgsql
          - createuser --createdb -P -R -e /username/ 
-
 
 ***  Initialize application
     - Note taken on [2016-04-26 Tue 18:49]
@@ -662,7 +658,7 @@
         [32mBundle updated![0m
         [32mGems in the group production were not installed.[0m
 #+end_example
-
+        
 
 *** app
 
@@ -849,6 +845,42 @@
         #+END_SRC
 
     
+
+***** application.rb
+      #+BEGIN_SRC ruby :tangle /ssh:MilaVM:mila/config/application.rb
+        require File.expand_path('../boot', __FILE__)
+
+        require 'rails/all'
+
+        # Require the gems listed in Gemfile, including any gems
+        # you've limited to :test, :development, or :production.
+        Bundler.require(*Rails.groups)
+
+        module Mila
+          class Application < Rails::Application
+            # Settings in config/environments/* take precedence over those specified here.
+            # Application configuration should go into files in config/initializers
+            # -- all .rb files in that directory are automatically loaded.
+
+            # Set Time.zone default to the specified zone and make Active Record auto-convert to this zone.
+            # Run "rake -D time" for a list of tasks for finding time zone names. Default is UTC.
+            config.time_zone = 'Mountain Time (US & Canada)'
+
+            # The default locale is :en and all translations from config/locales/*.rb,yml are auto loaded.
+            # config.i18n.load_path += Dir[Rails.root.join('my', 'locales', '*.{rb,yml}').to_s]
+            # config.i18n.default_locale = :de
+
+            # Do not swallow errors in after_commit/after_rollback callbacks.
+            config.active_record.raise_in_transactional_callbacks = true
+
+            #Content Compression via Rack::Deflater
+            config.middleware.use Rack::Deflater
+            
+          end
+        end
+
+      #+END_SRC
+
 
 *** Controllers
 
@@ -2229,7 +2261,7 @@
       
       #+END_SRC
 
-***** TODO [0/2] Normal deploy tasks
+***** TODO [0/3] Normal deploy tasks
       [[http://stackoverflow.com/a/27434582/768772][This answer]] has a nice summary of what should get done.  These
       should be automated in the deploy/production.rb file.
       - [ ] Initial deployment :: first time cap deploy is run on an application
@@ -2241,6 +2273,20 @@
           RAILS_ENV=production rake assets:precompile
           RAILS_ENV=production rake db:migrate
         #+END_SRC
+
+        #+RESULTS:
+
+      - [ ] Copy over [DOCUMENTROOT]/mila_config files to
+        current/config for database.yml and secrets.yml
+        #+BEGIN_SRC sh :results output :dir /ssh:freebsd@mila.cat:/usr/local/www/mila/current/config
+          cp /usr/local/www/mila/mila_conf/database.yml  database.yml
+          cp /usr/local/www/mila/mila_conf/secrets.yml   secrets.yml
+          ls -lh *.yml
+        #+END_SRC
+
+        #+RESULTS:
+        : -rw-r--r--  1 freebsd  rails   428B May  7 03:43 database.yml
+        : -rw-r--r--  1 freebsd  rails   651B May  7 03:43 secrets.yml
 
 
 * Wrong Turns
@@ -2301,10 +2347,3 @@
       #+BEGIN_SRC sh :dir /ssh:MilaVM:~
       
       #+END_SRC
-
-
-    #+RESULTS:
-
-    
-  
-
