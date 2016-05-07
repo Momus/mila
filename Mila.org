@@ -101,11 +101,51 @@
 
 * FreeBSD Rails server general system setup
 
-*** Directory adjustments
+*** Adjustments
     - Source directory for tarball installs
       #+BEGIN_SRC sh :dir /ssh:MilaVM:~
         mkdir ~/src
       #+END_SRC
+    - No eterm-color termcap entry for FreeBSD. WTF.
+      Currently [[http://stackoverflow.com/a/8819340/768772][THIS]] dosen't seem to work.
+      #+BEGIN_SRC sh :tangle /ssh:freebsd@mila.cat:~/src/emacs-ansi-termcap
+            # Termcap entry for eterm-color (taken from $TERMCAP set by emacs and formatted)
+            eterm-color|Emacs term.el terminal emulator term-protocol-version 0.96:\
+                   :am:bs:mi:pt:xn:\
+                   :Co#8:co#166:li#48:pa#64:\
+                   :@7=\E[4~:AB=\E[4%dm:AF=\E[3%dm:AL=\E[%dL:DC=\E[%dP:\
+                   :DL=\E[%dM:DO=\E[%dB:IC=\E[%d@:LE=\E[%dD:RI=\E[%dC:\
+                   :UP=\E[%dA:al=\E[L:bl=^G:cb=\E[1K:cd=\E[J:ce=\E[K:\
+                   :cl=\E[H\E[J:cm=\E[%i%d;%dH:cr=^M:cs=\E[%i%d;%dr:dc=\E[P:\
+                   :dl=\E[M:do=^J:ei=\E[4l:ho=\E[H:im=\E[4h:kD=^[[3~:\
+                   :kN=\E[6~:kP=\E[5~:kb=^?:kd=\EOB:kh=\E[1~:kl=\EOD:\
+                   :kr=\EOC:ku=\EOA:le=^H:md=\E[1m:me=\E[m:mk=\E[8m:mr=\E[7m:\
+                   :nd=\E[C:op=\E[39;49m:r1=\Ec:rc=\E8:sc=\E7:se=\E[27m:sf=^J:\
+                   :so=\E[7m:ta=^I:ue=\E[m:\
+                   :up=\E[A:us=\E[4m:
+      #+END_SRC
+
+      #+BEGIN_SRC sh :tangle /ssh:MilaVM:~/src/emacs-ansi-termcap
+                        eterm-color|Emacs term.el terminal emulator term-protocol-version 0.96:\
+                           :am:bs:mi:pt:xn:\
+                           :Co#8:co#166:li#48:pa#64:\
+                           :@7=\E[4~:AB=\E[4%dm:AF=\E[3%dm:AL=\E[%dL:DC=\E[%dP:\
+                           :DL=\E[%dM:DO=\E[%dB:IC=\E[%d@:LE=\E[%dD:RI=\E[%dC:\
+                           :UP=\E[%dA:al=\E[L:bl=^G:cb=\E[1K:cd=\E[J:ce=\E[K:\
+                           :cl=\E[H\E[J:cm=\E[%i%d;%dH:cr=^M:cs=\E[%i%d;%dr:dc=\E[P:\
+                           :dl=\E[M:do=^J:ei=\E[4l:ho=\E[H:im=\E[4h:kD=^[[3~:\
+                           :kN=\E[6~:kP=\E[5~:kb=^?:kd=\EOB:kh=\E[1~:kl=\EOD:\
+                           :kr=\EOC:ku=\EOA:le=^H:md=\E[1m:me=\E[m:mk=\E[8m:mr=\E[7m:\
+                           :nd=\E[C:op=\E[39;49m:r1=\Ec:rc=\E8:sc=\E7:se=\E[27m:sf=^J:\
+                           :so=\E[7m:ta=^I:ue=\E[m:\
+                           :up=\E[A:us=\E[4m:
+      #+END_SRC
+
+      #+BEGIN_SRC sh :results output :dir /ssh:freebsd@mila.cat:~/src
+        sudo cp ./emacs-ansi-termcap  /usr/share/misc/termcap
+        sudo 
+      #+END_SRC
+      
 
 *** Needful software
     - Git, of course
@@ -125,7 +165,7 @@
       the executable and /usr/bin/ruby
  
       #+BEGIN_SRC sh :dir /ssh:MilaVM:~
-        sudo pkg install --yes --quiet ruby23
+        sudo pkg install --yes --quiet ruby23 node node-devel
         sudo ln -s /usr/local/bin/ruby23 /usr/bin/ruby
         ruby --version
       #+END_SRC
@@ -146,6 +186,7 @@
 
       #+RESULTS:
       : 2.6.3
+
 
 *** Postgres
     Started with [[https://jasonk2600.wordpress.com/2010/01/11/installing-postgresql-on-freebsd/][this tutorial]]
@@ -194,6 +235,7 @@
       sudo pkg install --yes node-devel www/npm
       sudo gem install rails  --no-rdoc --no-ri
     #+END_SRC
+
 
 ***  [[https://www.digitalocean.com/community/tutorials/how-to-setup-ruby-on-rails-with-postgres][Postgres and Rails]]
      - Install the posrgres gem:
@@ -360,29 +402,52 @@
      | =            | 1.9.1                                                    | :                                               | gem         | install                          | rdoc-data; | rdoc-data | --install |            |     |         |            |         |       |
      | >=           | 1.9.2                                                    | :                                               | nothing     | to                               | do!        | Yay!      |           |            |     |         |            |         |       |
 
-***** TODO Configure the application database
-      What I have should work fine, but maybe look more into config/database.yml
-      In general database.yml should look like this:
-      #+BEGIN_SRC ruby
-        development:
-          adapter: postgresql
-          encoding: unicode
-          database: myapp_development
-          pool: 5
-          username: myapp
-          password: password1
+***** TODO [3/4] Configure the application database
 
-        test:
-          adapter: postgresql
-          encoding: unicode
-          database: myapp_test
-          pool: 5
-          username: myapp
-          password: password1
-                  
-      #+END_SRC
-      but I am leaving it out of this file for now.
-***** Initial Gemfile:
+      - [X] Take databases.yml and secretls.yml out of version controll.
+
+      - [X] Make one database.yml for testing and dev and another for
+        production What I have should work fine, but maybe look more
+        into config/database.yml In general database.yml should look
+        like this:
+            #+BEGIN_SRC ruby
+              development:
+                adapter: postgresql
+                encoding: unicode
+                database: myapp_development
+                pool: 5
+                username: myapp
+                password: password1
+
+              test:
+                adapter: postgresql
+                encoding: unicode
+                database: myapp_test
+                pool: 5
+                username: myapp
+                password: password1
+           #+END_SRC
+           but I am leaving it out of this file for now.
+
+      - [X] Copy over [DOCUMENTROOT]/mila_config files to
+        current/config for database.yml and secrets.yml
+        #+BEGIN_SRC sh :results output :dir /ssh:freebsd@mila.cat:/usr/local/www/mila/current/config
+          cp /usr/local/www/mila/mila_conf/database.yml  database.yml
+          cp /usr/local/www/mila/mila_conf/secrets.yml   secrets.yml
+          ls -lh *.yml
+        #+END_SRC
+
+        #+RESULTS:
+        : -rw-r--r--  1 freebsd  rails   428B May  7 02:06 database.yml
+        : -rw-r--r--  1 freebsd  rails   963B May  7 02:06 secrets.yml
+
+      - [ ] Automate this in Capistrano for future deployments, or set up actually working ENVs 
+
+
+      
+
+
+***** Gemfile:
       made to look like the book, except version numbers with default Rails gave.
       Except web-console
       #+BEGIN_SRC sh :dir /ssh:MilaVM:~/mila/
@@ -712,6 +777,7 @@
 
 
 *** Config
+
 ***** Routes
       - routes.rb
         #+BEGIN_SRC ruby :tangle /ssh:MilaVM:/home/vagrant/mila/config/routes.rb
@@ -730,6 +796,7 @@
 
           end
         #+END_SRC
+
 
 ***** environments
       - development
@@ -826,6 +893,7 @@
         #+END_SRC
 
 ******* 
+
 
 ***** User Controller
 
@@ -1819,18 +1887,55 @@
         This will be tangled with:
         /usr/local/etc/apache24/sites-enabled/mila.conf
         #+BEGIN_SRC sh
-          <VirtualHost *:80> 
-             ServerName www.mila.cat
-             # !!! Be sure to point DocumentRoot to 'public'! 
-             DocumentRoot /usr/local/www/mila/public/ 
-             <Directory /> 
-               # This relaxes Apache security settings.
-               Require all granted 
-               AllowOverride all 
-               # MultiViews must be turned off. 
-               Options -MultiViews 
-             </Directory> 
-           </VirtualHost> 
+          <VirtualHost *:80>
+            ServerName mila.cat
+            ServerAdmin admin@mila.cat
+            DocumentRoot /usr/local/www/mila/current/public/
+
+            ServerAlias www.mila.cat
+
+            RewriteEngine on
+            RewriteCond %{SERVER_PORT} !^443$
+            RewriteRule ^/(.*) https://%{HTTP_HOST}/$1 [NC,R=301,L]
+
+            <Directory />
+              Require all granted
+              AllowOverride all
+              #Passenger:  MultiViews must be turned off.
+              Options -MultiViews
+              Options FollowSymLinks
+             </Directory>
+
+          </VirtualHost>
+
+
+
+          <VirtualHost *:443>
+            ServerName   mila.cat
+            ServerAlias  www.mila.cat
+            ServerAdmin  admin@mila.cat
+            DocumentRoot /usr/local/www/mila/current/public/
+
+            SSLEngine on
+            SSLProtocol all -SSLv2
+            SSLCipherSuite ALL:!ADH:!EXPORT:!SSLv2:RC4+RSA:+HIGH:+MEDIUM
+
+            SSLCertificateFile       /usr/local/etc/letsencrypt.sh/certs/mila.cat/cert.pem
+            SSLCertificateKeyFile    /usr/local/etc/letsencrypt.sh/certs/mila.cat/privkey.pem
+            SSLCertificateChainFile  /usr/local/etc/letsencrypt.sh/certs/mila.cat/fullchain.pem
+
+            #Environmental variables for Rails.
+            #Should get exported  to their own file someday
+            SetEnv MILA_DATABASE_PASSWORD 'Password string goes here'
+            <Directory />
+              Require all granted
+              AllowOverride all
+              #Passenger:  MultiViews must be turned off.
+              Options -MultiViews
+              Options FollowSymLinks
+            </Directory>
+
+          </VirtualHost>
         #+END_SRC
 
 
@@ -1877,13 +1982,30 @@
 *** Capistrano
 
 
-***** Place Mila into Git
+***** [[http://capistranorb.com/documentation/getting-started/preparing-your-application/][Initial]] Preparation
+      Place Mila into Git
+******* Generate keys: 
+        - Development :: Vagrant box
+          From [[http://unix.stackexchange.com/a/135090/23183][some guy]] comes this trick:
+           #+BEGIN_SRC sh :resulats output :dir /ssh:MilaVM:~/
+             cat /dev/zero | ssh-keygen -t dsa -q  -N ""
+           #+END_SRC
 
-******* Generate keys for development Vagrant box:
-        From [[http://unix.stackexchange.com/a/135090/23183][some guy]] comes this trick:
-        #+BEGIN_SRC sh :results output :dir /ssh:MilaVM:~/
-        cat /dev/zero | ssh-keygen -t dsa -q  -N ""
+        - Production :: Mila.cat
+           #+BEGIN_SRC sh :resulats output :dir /ssh:freebsd@mila.cat:~/
+             cat /dev/zero | ssh-keygen -t dsa -q  -N ""
+           #+END_SRC
+
+           #+RESULTS:
+
+******* Allow Capistrano to wrtite to /var/www
+        #+BEGIN_SRC sh :results output :dir /ssh:freebsd@mila.cat:~/
+          sudo mkdir /var/www
+          sudo chgrp rails /var/www
+          sudo chmod 775 /var/www
         #+END_SRC
+
+        #+RESULTS:
 
 ******* TODO Add key to Bitbucket
         Is there some way to script this? Right now, go to
@@ -1981,6 +2103,11 @@
         Branch master set up to track remote branch master from origin.
 #+end_example
 
+******* Copy over the new key: 
+        - from :: MilaVM:~/.ssh/id_dsa.pub >>
+        - to   :: >> Mila.cat:~/.ssh/authorized_keys
+
+
 ***** install Capistrano files
       - initial creation
         #+BEGIN_SRC sh :results output :dir /ssh:MilaVM:~/mila/
@@ -2010,7 +2137,7 @@
         # ask :branch, `git rev-parse --abbrev-ref HEAD`.chomp
 
         # Default deploy_to directory is /var/www/my_app_name
-        set :deploy_to, '/var/www/mila'
+        set :deploy_to, "/usr/local/www/mila/"
 
         # Default value for :scm is :git
         # set :scm, :git
@@ -2052,18 +2179,9 @@
 
       #+END_SRC
 
+
 ***** config/deploy/production.rb
       #+BEGIN_SRC ruby :tangle /ssh:MilaVM:mila/config/deploy/production.rb
-        # server-based syntax
-        # ======================
-        # Defines a single server with a list of roles and multiple properties.
-        # You can define all roles on a single server, or split them:
-
-        # server 'example.com', user: 'deploy', roles: %w{app db web}, my_property: :my_value
-        # server 'example.com', user: 'deploy', roles: %w{app web}, other_property: :other_value
-        # server 'db.example.com', user: 'deploy', roles: %w{db}
-
-
 
         # role-based syntax
         # ==================
@@ -2076,18 +2194,6 @@
         # role :app, %w{deploy@example.com}, my_property: :my_value
         # role :web, %w{user1@primary.com user2@additional.com}, other_property: :other_value
         # role :db,  %w{deploy@example.com}
-
-
-
-        # Configuration
-        # =============
-        # You can set any configuration variable like in config/deploy.rb
-        # These variables are then only loaded and set in this stage.
-        # For available Capistrano configuration variables see the documentation page.
-        # http://capistranorb.com/documentation/getting-started/configuration/
-        # Feel free to add new variables to customise your setup.
-
-
 
         # Custom SSH Options
         # ==================
@@ -2105,19 +2211,36 @@
         #
         # The server-based syntax can be used to override options:
         # ------------------------------------
-        # server 'example.com',
-        #   user: 'user_name',
-        #   roles: %w{web app},
-        #   ssh_options: {
-        #     user: 'user_name', # overrides user setting above
-        #     keys: %w(/home/user_name/.ssh/id_rsa),
-        #     forward_agent: false,
-        #     auth_methods: %w(publickey password)
-        #     # password: 'please use keys'
-        #   }
+         server 'mila.cat',
+           user: 'freebsd',
+           roles: %w{web db app},
+           ssh_options: {
+           #keys: %w(/home/user_name/.ssh/id_rsa) ,
+             forward_agent: false
+           #auth_methods: %w(publickey)
+           }
 
       #+END_SRC
 
+
+
+***** initial deployment
+      #+BEGIN_SRC sh
+      
+      #+END_SRC
+
+***** TODO [0/2] Normal deploy tasks
+      [[http://stackoverflow.com/a/27434582/768772][This answer]] has a nice summary of what should get done.  These
+      should be automated in the deploy/production.rb file.
+      - [ ] Initial deployment :: first time cap deploy is run on an application
+        #+BEGIN_SRC sh :results output :dir /ssh:freebsd@mila.cat:/usr/local/www/mila/current
+          RAILS_ENV=production rake db:setup
+        #+END_SRC
+      - [ ] Default deployment :: tasks that should be run every time
+        #+BEGIN_SRC sh :results output :dir /ssh:freebsd@mila.cat:/usr/local/www/mila/current
+          RAILS_ENV=production rake assets:precompile
+          RAILS_ENV=production rake db:migrate
+        #+END_SRC
 
 
 * Wrong Turns
