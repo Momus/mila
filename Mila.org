@@ -223,6 +223,11 @@
       - Enter password for new role:
       - Enter it again:
 
+*** TODO Logs! Get them under control!
+
+*** TODO Monitoring! Parse those logs, get meaningful metrics.
+*** 
+*** TODO Route with IPv6
 
 
 * Mila.cat Rails-Elm app
@@ -787,8 +792,8 @@
 
             ## Static pages controller serves static pages.
 
-            get '/help' => 'static_pages#help'
-            get '/about' => 'static_pages#about'
+            get '/help' => 'static_pages#help' , constraints: { format: 'json' } 
+            get '/about' => 'static_pages#about', constraints: { format: 'json' } 
 
           end
         #+END_SRC
